@@ -1,0 +1,19 @@
+/**
+ * Padding Classes
+ */
+
+.p-xs {
+  padding: var(--size-xs);
+}
+
+.p-sm {
+  padding: var(--size-sm);
+}
+
+.p-md {
+  padding: var(--size-md);
+}
+
+.p-lg {
+  padding: var(--size-lg);
+}

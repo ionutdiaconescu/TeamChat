@@ -1,0 +1,61 @@
+/**
+ * Margin Classes
+ */
+
+/* All margins */
+
+.m-xs {
+  margin: var(--size-xs);
+}
+
+.m-sm {
+  margin: var(--size-sm);
+}
+
+.m-md {
+  margin: var(--size-md);
+}
+
+.m-lg {
+  margin: var(--size-lg);
+}
+
+/**
+   * Horizontal axis margins
+   */
+
+.m-h-xs {
+  margin: 0 var(--size-xs);
+}
+
+.m-h-sm {
+  margin: 0 var(--size-sm);
+}
+
+.m-h-md {
+  margin: 0 var(--size-md);
+}
+
+.m-h-lg {
+  margin: 0 var(--size-lg);
+}
+
+/**
+   * Vertical axis margins
+   */
+
+.m-v-xs {
+  margin: var(--size-xs) 0;
+}
+
+.m-v-sm {
+  margin: var(--size-sm) 0;
+}
+
+.m-v-md {
+  margin: var(--size-md) 0;
+}
+
+.m-v-lg {
+  margin: var(--size-lg) 0;
+}

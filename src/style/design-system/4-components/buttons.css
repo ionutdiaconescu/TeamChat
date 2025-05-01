@@ -1,0 +1,33 @@
+.btn {
+  margin: var(--size-xxs);
+  border: 0;
+  border-radius: var(--radius-md);
+  padding: var(--size-sm) var(--size-md);
+  font-family: var(--default-font);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+}
+
+.btn-sm {
+  padding: var(--size-xs) var(--size-sm);
+}
+
+.btn:hover {
+  box-shadow: var(--shadow-inset-sm);
+  transition: box-shadow 0.5s;
+  filter: contrast(120%);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.btn-secondary {
+  color: var(--color-text);
+  background-color: var(--color-secondary);
+}
+
+.btn-secondary:hover {
+  color: #000;
+}

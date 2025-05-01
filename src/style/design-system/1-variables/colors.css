@@ -1,0 +1,23 @@
+:root {
+  /* Backgrounds */
+  --bg-color: #eaedf0;
+  --bg-color-dark: #343a40;
+
+  /* Text colors */
+  --color-text: #252a2e;
+  --color-text-dark: #f2f2f2;
+  --color-text-muted: #6c757d;
+
+  /* Variant colors */
+  --color-primary: #2252b0;
+  --color-secondary: #b3ccff;
+  --success-color: #00b900;
+  --error-color: #9d0000;
+
+  /* Border colors */
+  --border-color: #707070;
+  --border-color-light: #b0b0b0;
+
+  /* Backdrop colors */
+  --backdrop-color: rgba(0, 0, 0, 0.5);
+}

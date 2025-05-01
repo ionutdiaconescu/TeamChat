@@ -1,0 +1,13 @@
+@import "./1-variables/colors.css";
+@import "./1-variables/fonts.css";
+@import "./1-variables/sizes.css";
+@import "./1-variables/z-index.css";
+
+@import "./2-elements/elements.css";
+
+@import "./3-classes/layouts.css";
+@import "./3-classes/margins.css";
+@import "./3-classes/paddings.css";
+
+@import "./4-components/buttons.css";
+@import "./4-components/forms.css";

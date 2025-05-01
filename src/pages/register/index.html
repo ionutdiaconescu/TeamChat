@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./register.css" />
+    <script type="module" src="./register.ts"></script>
+    <title>TeamChat Register</title>
+  </head>
+  <body class="flex flex-center auth-page">
+    <form class="flex flex-column flex-center auth-form">
+      <h2>Register</h2>
+
+      <div class="input-row">
+        <label for="email">Email</label>
+        <span class="icon"><ion-icon name="mail"></ion-icon></span>
+        <input type="email" id="email" required />
+      </div>
+      <div class="input-row">
+        <label for="password">Password</label>
+        <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+        <input type="password" id="password" required />
+      </div>
+      <div class="input-row">
+        <label for="password">Repeat password</label>
+        <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+        <input type="password" id="confirm-password" required />
+      </div>
+      <div class="auth-actions"></div>
+
+      <button
+        type="button"
+        id="registerBtn"
+        class="btn btn-primary auth-submit-button"
+      >
+        Register
+      </button>
+      <div class="auth-link-row">
+        <p>I have an account <a href="../../index.html">Login</a></p>
+      </div>
+    </form>
+  </body>
+  <script
+    type="module"
+    src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+  ></script>
+  <script
+    nomodule
+    src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+  ></script>
+</html>
