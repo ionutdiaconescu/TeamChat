@@ -10,22 +10,30 @@
   <body class="flex flex-center auth-page">
     <form class="flex flex-column flex-center auth-form">
       <h2>Register</h2>
-
+      <p class="message-box" role="alert"></p>
       <div class="input-row">
         <label for="email">Email</label>
         <span class="icon"><ion-icon name="mail"></ion-icon></span>
         <input type="email" id="email" required />
       </div>
+      <p class="message-box" id="register-email-error" role="alert"></p>
       <div class="input-row">
         <label for="password">Password</label>
         <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
         <input type="password" id="password" required />
       </div>
+      <p class="message-box" id="register-password-error" role="alert"></p>
+
       <div class="input-row">
         <label for="password">Repeat password</label>
         <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
         <input type="password" id="confirm-password" required />
       </div>
+      <p
+        class="message-box"
+        id="register-confirm-password-error"
+        role="alert"
+      ></p>
       <div class="auth-actions"></div>
 
       <button

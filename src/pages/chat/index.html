@@ -7,5 +7,44 @@
     <script type="module" src="./chat.ts"></script>
     <title>TeamChat</title>
   </head>
-  <body></body>
+  <body>
+    <div class="chat-layout">
+      <!-- Sidebar fix (listă prieteni și altele) -->
+      <aside class="sidebar">
+        <div class="friend-search">
+          <input
+            type="text"
+            class="friend-search-input"
+            placeholder="Search friends..."
+          />
+        </div>
+        <div class="sidebar-title">Friends</div>
+        <ul class="friend-list">
+          <!-- Lista de prieteni va fi completată dinamic -->
+        </ul>
+      </aside>
+
+      <!-- Fereastra de chat fixă -->
+      <main class="chat-window">
+        <div class="chat-header">
+          <!-- Numele utilizatorului care trimite mesajul (dinamic) -->
+          <h2 id="chatUserName">Jane Smith</h2>
+        </div>
+        <div class="chat-messages">
+          <!-- Mesajele vor fi completate dinamic -->
+        </div>
+      </main>
+    </div>
+
+    <!-- Bara de mesaje -->
+    <footer class="message-bar">
+      <input
+        type="text"
+        id="messageInput"
+        class="message-input"
+        placeholder="Write a message..."
+      />
+      <button id="sendMessageBtn" class="send-button">Send</button>
+    </footer>
+  </body>
 </html>

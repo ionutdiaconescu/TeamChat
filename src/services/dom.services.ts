@@ -34,7 +34,7 @@ export const configureElement = (
 export const createDomElement = (
   tagName: keyof HTMLElementTagNameMap,
   classes: string,
-  textContent: string,
+  textContent?: string,
   parentToAttachTo?: HTMLElement,
   children?: HTMLElement[]
 ): HTMLElement => {

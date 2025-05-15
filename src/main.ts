@@ -1,9 +1,9 @@
+import { loginUser } from "./services/auth.services";
 import {
-  loginUser,
+  addInputValidation,
   validateEmailInput,
   validatePasswordInput,
-  addLiveAndBlurValidation,
-} from "./services/auth.services";
+} from "./services/validation.service";
 import {
   renderLoadingSpinner,
   removeLoadingSpinner,
@@ -19,12 +19,17 @@ const rememberMeCheckbox = document.getElementById(
 ) as HTMLInputElement;
 const loginButton = document.getElementById("login-btn") as HTMLButtonElement;
 const messageBox = document.querySelector(".message-box") as HTMLElement;
+const emailError = document.getElementById("login-email-error") as HTMLElement;
+const passwordError = document.getElementById(
+  "login-password-error"
+) as HTMLElement;
+
 initializePage();
 function initializePage() {
   loginButton.addEventListener("click", onLoginButtonClick);
   rememberMeCheckbox.addEventListener("change", onRememberMeCheckboxTick);
-  addLiveAndBlurValidation(emailInput, validateEmailInput, messageBox);
-  addLiveAndBlurValidation(passwordInput, validatePasswordInput, messageBox);
+  addInputValidation(emailInput, validateEmailInput, emailError);
+  addInputValidation(passwordInput, validatePasswordInput, passwordError);
 }
 
 async function onLoginButtonClick(e: MouseEvent): Promise<void> {
@@ -51,27 +56,26 @@ async function onLoginButtonClick(e: MouseEvent): Promise<void> {
   }
 }
 
-function onRememberMeCheckboxTick(e: Event): void {
-  const checkbox = e.target as HTMLInputElement;
-  const autocompleteValue = checkbox.checked ? "email" : "off";
-  emailInput.setAttribute("autocomplete", autocompleteValue);
-  passwordInput.setAttribute(
-    "autocomplete",
-    checkbox.checked ? "current-password" : "off"
-  );
+function onRememberMeCheckboxTick(e: Event) {
+  const target = e.target;
+
+  if (target instanceof HTMLInputElement && target.type === "checkbox") {
+    if (target.checked) {
+      emailInput.setAttribute("autocomplete", "email");
+      passwordInput.setAttribute("autocomplete", "current-password");
+    } else {
+      emailInput.setAttribute("autocomplete", "off");
+      passwordInput.setAttribute("autocomplete", "off");
+    }
+  }
 }
 
 /** Inputs validation */
 function validateInputs(): boolean {
-  const emailError = validateEmailInput(emailInput.value);
-  const passwordError = validatePasswordInput(passwordInput.value);
-  const errorMessage = emailError || passwordError;
+  const emailErrorMessage = validateEmailInput(emailInput.value);
+  const passwordErrorMessage = validatePasswordInput(passwordInput.value);
 
-  if (errorMessage) {
-    configureElement(messageBox, "message-box error", errorMessage);
-    return false;
-  }
-
-  configureElement(messageBox, "", "");
-  return true;
+  configureElement(emailError, "message-box error", emailErrorMessage);
+  configureElement(passwordError, "message-box error", passwordErrorMessage);
+  return !(emailErrorMessage || passwordErrorMessage);
 }

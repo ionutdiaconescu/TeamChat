@@ -1,28 +1,64 @@
 import { createFriendItem, createMessageBubble } from "./chatTemplates";
-import { createDomElement } from "../../services/dom.services";
 
-export function renderChatInterface() {
-  const chatContainer = createDomElement(
-    "div",
-    "chat-layout",
-    "",
-    document.body
+const friends = [
+  { name: "Jane Smith", status: "Online", isOnline: true },
+  { name: "John Doe", status: "Last seen 5m ago", isOnline: false },
+  { name: "Alice Johnson", status: "Online", isOnline: true },
+  { name: "Bob Brown", status: "Offline", isOnline: false },
+];
+
+const messages = [
+  { from: "Jane Smith", time: "10:00 AM", message: "Hello, how are you?" },
+  { from: "John Doe", time: "10:01 AM", message: "I'm good, you?" },
+  { from: "Jane Smith", time: "10:02 AM", message: "Great! Let's chat." },
+];
+
+const loggedInUser = "Jane Smith";
+
+// Adaugă prietenii în listă
+const friendList = document.querySelector(".friend-list")!;
+friends.forEach((friend) => {
+  const userItem = createFriendItem(
+    friend.name,
+    friend.status,
+    friend.isOnline
   );
-  chatContainer.id = "chat-container";
+  friendList.append(userItem);
+});
 
-  const sidebar = createDomElement("aside", "sidebar", "", chatContainer!);
-  const list = createDomElement("ul", "friend-list", "", sidebar);
+// Adaugă mesajele în fereastra de chat
+const messagesContainer = document.querySelector(".chat-messages")!;
+messages.forEach((msg) => {
+  const messageBubble = createMessageBubble(
+    msg.message,
+    msg.time,
+    msg.from === loggedInUser ? "right" : "left",
+    msg.from
+  );
+  messagesContainer.append(messageBubble);
+});
 
-  const user1 = createFriendItem("Jane Smith", "Online", true);
-  const user2 = createFriendItem("John Doe", "Last seen 5m ago", false);
-  list.append(user1, user2);
+// Trimitere mesaj
+document.getElementById("sendMessageBtn")!.addEventListener("click", () => {
+  const messageInput = document.getElementById(
+    "messageInput"
+  ) as HTMLInputElement;
+  const message = messageInput.value;
+  if (message.trim() === "") return;
 
-  const main = createDomElement("main", "chat-window", "", chatContainer!);
-  const messages = createDomElement("div", "chat-messages", "", main);
+  const newMessage = {
+    from: loggedInUser,
+    time: new Date().toLocaleTimeString(),
+    message: message,
+  };
+  messages.push(newMessage);
 
-  const m1 = createMessageBubble("Hello!", "10:00 AM", "left");
-  const m2 = createMessageBubble("Hi there!", "10:01 AM", "right");
-
-  messages.append(m1, m2);
-}
-renderChatInterface();
+  const messageBubble = createMessageBubble(
+    newMessage.message,
+    newMessage.time,
+    "right",
+    loggedInUser
+  );
+  messagesContainer.append(messageBubble);
+  messageInput.value = "";
+});
