@@ -20,15 +20,17 @@ export const createMessageBubble = (
   return bubble;
 };
 
-export const createFriendItem = (
-  name: string,
-  status: string,
-  isOnline: boolean
-): HTMLElement => {
+export const createFriendItem = (name: string, status: string): HTMLElement => {
   const avatar = createDomElement("div", "avatar", "");
   const nameSpan = createDomElement("span", "name", name);
   const statusSpan = createDomElement("span", "status", status);
-  if (isOnline) statusSpan.classList.add("online");
+
+  //green dot if is online
+  if (status === "online") {
+    statusSpan.classList.add("online");
+  } else {
+    statusSpan.classList.add("offline");
+  }
 
   const info = createDomElement("div", "friend-info", "", undefined, [
     nameSpan,

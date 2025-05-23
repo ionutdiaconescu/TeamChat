@@ -1,21 +1,13 @@
+mport { createFriendItem, createMessageBubble } from "./chatTemplates";
+import { updateDbDoc } from "../../services/db.services";
+import { signOut } from "firebase/auth";
 import { createFriendItem, createMessageBubble } from "./chatTemplates";
 
-const friends = [
-  { name: "Jane Smith", status: "Online", isOnline: true },
-  { name: "John Doe", status: "Last seen 5m ago", isOnline: false },
-  { name: "Alice Johnson", status: "Online", isOnline: true },
-  { name: "Bob Brown", status: "Offline", isOnline: false },
-];
 
-const messages = [
-  { from: "Jane Smith", time: "10:00 AM", message: "Hello, how are you?" },
-  { from: "John Doe", time: "10:01 AM", message: "I'm good, you?" },
-  { from: "Jane Smith", time: "10:02 AM", message: "Great! Let's chat." },
-];
 
 const loggedInUser = "Jane Smith";
 
-// Adaugă prietenii în listă
+// Add friends to the friend list
 const friendList = document.querySelector(".friend-list")!;
 friends.forEach((friend) => {
   const userItem = createFriendItem(
@@ -26,7 +18,7 @@ friends.forEach((friend) => {
   friendList.append(userItem);
 });
 
-// Adaugă mesajele în fereastra de chat
+// add messages to the chat
 const messagesContainer = document.querySelector(".chat-messages")!;
 messages.forEach((msg) => {
   const messageBubble = createMessageBubble(
@@ -38,7 +30,7 @@ messages.forEach((msg) => {
   messagesContainer.append(messageBubble);
 });
 
-// Trimitere mesaj
+// Send message
 document.getElementById("sendMessageBtn")!.addEventListener("click", () => {
   const messageInput = document.getElementById(
     "messageInput"
@@ -52,6 +44,7 @@ document.getElementById("sendMessageBtn")!.addEventListener("click", () => {
     message: message,
   };
   messages.push(newMessage);
+  
 
   const messageBubble = createMessageBubble(
     newMessage.message,

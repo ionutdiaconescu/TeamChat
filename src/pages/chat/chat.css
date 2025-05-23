@@ -3,245 +3,295 @@
 *::after {
   box-sizing: border-box;
 }
-
-.chat-layout {
-  display: flex;
+body {
+  background: var(--bg-color);
+  color: var(--color-text);
   height: 100vh;
+  overflow: hidden;
+}
+.chat-layout {
+  height: 98%;
   font-family: Arial, sans-serif;
-  background: #e5ddd5;
-  color: #333;
+  background: var(--bg-color);
+  color: var(--color-text);
+}
+.chat-window {
+  background-color: var(--bg-color);
+  border-radius: var(--size-md);
+  border: 3px solid var(--border-color);
 }
 
-/* Sidebar prieteni */
 .sidebar {
-  width: 280px;
-  background-color: #f7f7f7;
-  border-right: 1px solid #ddd;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
   overflow-y: auto;
+  width: var(--width-sm);
+  background-color: var(--bg-color);
+  border: 3px solid var(--border-color);
+  border-radius: var(--size-xs);
 }
 
 .sidebar-title {
+  height: var(--size-xl);
+  background-color: var(--bg-color-dark);
+  color: var(--color-text-dark);
   font-weight: bold;
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
+  font-size: var(--size-lg);
+  margin-bottom: var(--size-sm);
 }
 
-.friend-search {
-  margin-bottom: 1rem;
+.search-input-wrapper {
+  position: relative;
+  width: 90%;
+  margin-left: var(--size-sm);
+  margin-right: var(--size-sm);
+  box-sizing: border-box;
 }
 
 .friend-search-input {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.5rem 3rem 0.5rem 0.5rem;
+  border: 3px solid var(--border-color-light);
+  border-radius: var(--size-md);
   outline: none;
-  background-color: #fff;
+  background-color: var(--bg-color);
+  color: var(--color-text);
+  font-size: var(--size-sm);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.search-icon {
+  position: absolute;
+  right: var(--size-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  height: var(--size-md);
+  width: var(--size-md);
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  background: var(--bg-color);
+}
+.search-icon:hover {
+  opacity: 1;
 }
 
 .friend-list {
+  align-items: start;
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: var(--size-xs);
 }
 
 .friend {
   display: flex;
   align-items: center;
+  justify-content: start;
+  width: 100%;
   padding: 0.5rem 0.25rem;
-  border-bottom: 1px solid #ddd;
-  cursor: pointer;
   transition: background 0.2s;
+  border: 1px solid var(--border-color-light);
+  cursor: pointer;
+  border-radius: 0.5rem;
+}
+.friend::after {
+  position: absolute;
+  left: 270px;
+  content: "";
+  height: var(--size-xs);
+  width: var(--size-xs);
+  background-color: var(--success-color);
+  border-radius: 50%;
 }
 
 .friend:hover {
-  background-color: #e0e0e0;
+  background-color: var(--border-color-light);
 }
 
-/* Avatar pătrat sau rotund */
 .avatar {
-  width: 40px;
-  height: 40px;
-  background-color: #bbb;
+  width: var(--size-xl);
+  height: var(--size-xl);
   border-radius: 50%;
-  margin-right: 0.75rem;
+  margin-right: var(--size-sm);
   flex-shrink: 0;
-  background-image: url("https://via.placeholder.com/40");
+  background-image: url("../../../public/user-icon.webp");
   background-size: cover;
   background-position: center;
 }
 
-/* Info prieten */
 .friend-info {
   display: flex;
   flex-direction: column;
 }
 
 .name {
+  color: var(--color-text);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: var(--size-sm);
 }
 
 .status {
-  font-size: 0.8rem;
-  color: #666;
+  color: var(--color-text-muted);
+  font-size: var(--size-sm);
 }
 
 .status.online {
-  color: green;
+  color: var(--success-color);
   font-weight: bold;
 }
 
-/* Fereastra chat */
 .chat-window {
   flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
+  background-color: var(--bg-color);
 }
 
-/* Header chat */
 .chat-header {
-  padding: 1rem;
-  border-bottom: 1px solid #ddd;
-  background-color: #f9f9f9;
+  border-bottom: 1px solid var(--border-color-light);
+  background-color: var(--bg-color-dark);
+  color: var(--color-text-dark);
+  border-top-left-radius: var(--size-sm);
+  border-top-right-radius: var(--size-sm);
 }
 
 .chat-header h2 {
   margin: 0;
+  color: var(--color-text-dark);
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: var(--size-md);
 }
 
-/* Mesaje chat */
 .chat-messages {
-  flex-grow: 1;
-  padding: 1rem;
-  padding-bottom: 60px; /* Pentru spațiu sub mesaje */
+  padding: var(--size-sm);
+  padding-bottom: 60px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  background-color: #e5ddd5;
+  background-color: var(--bg-color);
 }
 
-/* Bula mesaj */
 .message {
   max-width: 60%;
-  padding: 0.5rem 1rem;
+  padding: var(--size-xs) var(--size-sm);
   border-radius: 1rem;
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: var(--size-xxs);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .message.left {
-  background-color: #fff;
+  background-color: var(--color-text-dark);
+  color: var(--color-text);
   align-self: flex-start;
   border-top-left-radius: 0;
-  color: #000;
 }
 
 .message.right {
-  background-color: #0084ff;
-  color: white;
+  background-color: var(--bg-color-dark);
+  color: var(--color-text-dark);
   align-self: flex-end;
   border-top-right-radius: 0;
 }
 
-/* User și timestamp în bula mesaj */
 .message .user {
   font-weight: 600;
   font-size: 0.85rem;
 }
 
 .message .timestamp {
-  font-size: 0.7rem;
-  color: #aaa;
+  color: var(--color-text-muted);
+  font-size: var(--size-sm);
   align-self: flex-end;
 }
 
-/* Bara mesaj */
-.message-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-top: 1px solid #ddd;
-  background-color: #fff;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  z-index: 1000;
+.message-send-bar {
+  border: 3px solid var(--border-color-light);
+  border-radius: var(--size-sm);
+  background-color: var(--bg-color);
+  height: var(--size-3xl);
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .message-input {
-  flex-grow: 1;
-  padding: 0.5rem 1.25rem;
-  font-size: 1rem;
-  border-radius: 25px;
-  border: 1px solid #ccc;
+  height: var(--size-xl);
+  padding: var(--size-xs) var(--size-md);
+  font-size: var(--size-sm);
+  border-radius: var(--size-md);
+  border: 1px solid var(--border-color-light);
   outline: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  background-color: #fafafa;
+  background-color: var(--bg-color);
+  color: var(--color-text);
 }
-
-.message-input:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-  background-color: #fff;
-}
-
 .send-button {
-  background-color: #007bff;
   border: none;
-  color: white;
-  padding: 0.6rem 1.5rem;
-  font-size: 1rem;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  user-select: none;
-  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.4);
+  background: transparent;
+}
+.send-icon {
+  height: var(--size-xl);
+  width: var(--size-xl);
+}
+.send-icon:hover {
+  scale: 1.1;
+  transition: 0.5s ease-in-out;
 }
 
-.send-button:hover {
-  background-color: #0056b3;
-  box-shadow: 0 4px 10px rgba(0, 86, 179, 0.6);
+.chat-user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--size-sm);
+}
+.chat-avatar {
+  width: var(--size-xl);
+  height: var(--size-xl);
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-.send-button:active {
-  background-color: #004494;
-  box-shadow: 0 1px 3px rgba(0, 68, 148, 0.8);
+.user-email {
+  display: block;
+  font-size: var(--size-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
 }
 
-/* Scroll custom pentru mesaje */
-.chat-messages::-webkit-scrollbar {
-  width: 8px;
+.status-dot {
+  display: inline-block;
+  width: var(--size-xs);
+  height: var(--size-xs);
+  border-radius: 50%;
+  margin-left: 0.5rem;
+  background-color: var(--border-color-light);
+  vertical-align: middle;
+}
+.status-dot.online {
+  background-color: var(--success-color);
+}
+.status-dot.online {
+  color: var(--success-color);
 }
 
-.chat-messages::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
+.status-dot.offline {
+  color: var(--color-text-muted);
 }
 
-/* Responsive simplu */
 @media (max-width: 600px) {
   .sidebar {
-    width: 100px;
-    font-size: 0.8rem;
+    width: 90vw;
+    margin: var(--size-xs);
+    font-size: var(--size-sm);
   }
-
-  .friend .name {
-    display: none;
+  .search-input-wrapper {
+    width: 100%;
+  }
+  .friend-search-input {
+    width: 90%;
+    font-size: var(--size-sm);
+  }
+  .search-icon {
+    height: var(--size-md);
+    width: var(--size-md);
+    right: var(--size-2xl);
   }
 
   .chat-layout {
@@ -249,6 +299,9 @@
   }
 
   .chat-window {
-    height: 70vh;
+    height: 80vh;
+  }
+  .friend::after {
+    display: none;
   }
 }

@@ -10,7 +10,7 @@ import {
   renderLoadingSpinner,
   removeLoadingSpinner,
 } from "../../services/loading.service";
-import { DualFieldValidator, RegisterElements } from "../../utils/types";
+import { RegisterElements } from "../../utils/types";
 import { updateDbDoc } from "../../services/db.services.ts";
 
 const elements: RegisterElements = {
@@ -98,6 +98,8 @@ async function registerUser() {
     await updateDbDoc("users", user.uid, {
       firebaseAuthId: user.uid,
       email: elements.emailInput.value,
+      status: "Online",
+      lastSeen: new Date().toLocaleString(),
     });
     configureElement(
       elements.messageBox,

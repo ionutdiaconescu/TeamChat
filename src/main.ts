@@ -10,6 +10,8 @@ import {
 } from "./services/loading.service";
 
 import { configureElement } from "./services/dom.services";
+import { getDbDocs, updateDbDoc } from "./services/db.services";
+import { createFriendItem } from "./pages/chat/chatTemplates";
 
 const form = document.querySelector("form") as HTMLFormElement;
 const emailInput = document.getElementById("email") as HTMLInputElement;
@@ -23,6 +25,7 @@ const emailError = document.getElementById("login-email-error") as HTMLElement;
 const passwordError = document.getElementById(
   "login-password-error"
 ) as HTMLElement;
+const friendList = document.querySelector(".friend-list") as HTMLUListElement;
 
 initializePage();
 function initializePage() {
@@ -39,7 +42,15 @@ async function onLoginButtonClick(e: MouseEvent): Promise<void> {
   renderLoadingSpinner(form);
 
   try {
-    await loginUser({ email: emailInput.value, password: passwordInput.value });
+    const user = await loginUser({
+      email: emailInput.value,
+      password: passwordInput.value,
+    });
+
+    await updateDbDoc("users", user.uid, {
+      status: "online",
+    });
+
     configureElement(messageBox, "message-box success", "Login successful");
 
     setTimeout(() => {
@@ -79,3 +90,15 @@ function validateInputs(): boolean {
   configureElement(passwordError, "message-box error", passwordErrorMessage);
   return !(emailErrorMessage || passwordErrorMessage);
 }
+
+async function loadFriends() {
+  const users = await getDbDocs("users");
+
+  users.forEach((user) => {
+    if (!user.email) return;
+    const friendItem = createFriendItem(user.email, user.status || "offline");
+    friendList.appendChild(friendItem);
+  });
+}
+
+loadFriends();

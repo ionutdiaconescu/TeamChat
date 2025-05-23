@@ -3,48 +3,83 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../style/design-system/index.css" />
     <link rel="stylesheet" href="./chat.css" />
     <script type="module" src="./chat.ts"></script>
     <title>TeamChat</title>
   </head>
   <body>
-    <div class="chat-layout">
-      <!-- Sidebar fix (listă prieteni și altele) -->
-      <aside class="sidebar">
+    <div class="chat-layout m-xs flex gap-sm">
+      <!-- Sidebar friends -->
+      <aside class="sidebar flex flex-column">
+        <div class="sidebar-title flex flex-center">Friends</div>
+
+        <!-- Search friends -->
         <div class="friend-search">
-          <input
-            type="text"
-            class="friend-search-input"
-            placeholder="Search friends..."
-          />
+          <div class="search-input-wrapper">
+            <input
+              type="text"
+              class="friend-search-input"
+              placeholder="Search friends..."
+            />
+            <img
+              class="search-icon"
+              src="../../../public/search-outline.svg"
+              alt=""
+            />
+          </div>
         </div>
-        <div class="sidebar-title">Friends</div>
-        <ul class="friend-list">
-          <!-- Lista de prieteni va fi completată dinamic -->
+
+        <!-- Friends list -->
+        <ul class="friend-list flex flex-column justify-between gap-sm">
+          <li class="friend">
+            <img
+              class="avatar"
+              src="../../../public/user-icon.webp"
+              alt="Avatar"
+            />
+            <div class="friend-info">
+              <span class="name">Jane Smith</span>
+              <span class="user-email">jane@email.com</span>
+            </div>
+            <span class="status-dot"></span>
+          </li>
         </ul>
       </aside>
-
-      <!-- Fereastra de chat fixă -->
-      <main class="chat-window">
+      <!-- Chat zone -->
+      <main class="chat-window flex flex-column">
         <div class="chat-header">
-          <!-- Numele utilizatorului care trimite mesajul (dinamic) -->
-          <h2 id="chatUserName">Jane Smith</h2>
+          <div class="chat-user-info">
+            <img
+              class="avatar chat-avatar"
+              src="../../../public/user-icon.webp"
+              alt="User avatar"
+            />
+            <div>
+              <h2 id="chatUserName">Jane Smith</h2>
+              <span id="chatUserEmail" class="user-email"></span>
+            </div>
+          </div>
         </div>
-        <div class="chat-messages">
-          <!-- Mesajele vor fi completate dinamic -->
+        <!-- Chat messages -->
+        <div class="chat-messages flex flex-column flex-grow gap-xs"></div>
+        <!-- Send message bar -->
+        <div class="message-send-bar flex flex-center m-sm p-sm">
+          <input
+            type="text"
+            id="messageInput"
+            class="message-input flex-grow"
+            placeholder="Write a message..."
+          />
+          <button id="sendMessageBtn" class="send-button">
+            <img
+              class="send-icon"
+              src="../../../public/send-outline.svg"
+              alt="send-icon"
+            />
+          </button>
         </div>
       </main>
     </div>
-
-    <!-- Bara de mesaje -->
-    <footer class="message-bar">
-      <input
-        type="text"
-        id="messageInput"
-        class="message-input"
-        placeholder="Write a message..."
-      />
-      <button id="sendMessageBtn" class="send-button">Send</button>
-    </footer>
   </body>
 </html>
