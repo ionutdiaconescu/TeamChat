@@ -9,23 +9,19 @@ import {
   removeLoadingSpinner,
 } from "./services/loading.service";
 
-import { configureElement } from "./services/dom.services";
+import { configureElement } from "./services/dom.service";
 import { getDbDocs, updateDbDoc } from "./services/db.services";
 import { createFriendItem } from "./pages/chat/chatTemplates";
 
-const form = document.querySelector("form") as HTMLFormElement;
-const emailInput = document.getElementById("email") as HTMLInputElement;
-const passwordInput = document.getElementById("password") as HTMLInputElement;
-const rememberMeCheckbox = document.getElementById(
-  "remember-me"
-) as HTMLInputElement;
-const loginButton = document.getElementById("login-btn") as HTMLButtonElement;
-const messageBox = document.querySelector(".message-box") as HTMLElement;
-const emailError = document.getElementById("login-email-error") as HTMLElement;
-const passwordError = document.getElementById(
-  "login-password-error"
-) as HTMLElement;
-const friendList = document.querySelector(".friend-list") as HTMLUListElement;
+const form = document.querySelector("form")!;
+const emailInput = document.getElementById("email")! as HTMLInputElement;
+const passwordInput = document.getElementById("password")! as HTMLInputElement;
+const rememberMeCheckbox = document.getElementById("remember-me")!;
+const loginButton = document.getElementById("login-btn")!;
+const messageBox = document.querySelector(".message-box")! as HTMLElement;
+const emailError = document.getElementById("login-email-error")!;
+const passwordError = document.getElementById("login-password-error")!;
+const friendList = document.querySelector(".friend-list")!;
 
 initializePage();
 function initializePage() {

@@ -15,7 +15,7 @@ import {
   GetSingleDbDocFn,
   GetDbDocsFn,
   UpdateDbDocFn,
-} from "../utils/types.ts";
+} from "./db.service.types.ts";
 
 import config from "./config.ts";
 

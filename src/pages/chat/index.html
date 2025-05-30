@@ -6,6 +6,14 @@
     <link rel="stylesheet" href="../../style/design-system/index.css" />
     <link rel="stylesheet" href="./chat.css" />
     <script type="module" src="./chat.ts"></script>
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+    ></script>
     <title>TeamChat</title>
   </head>
   <body>
@@ -55,7 +63,7 @@
               src="../../../public/user-icon.webp"
               alt="User avatar"
             />
-            <div>
+            <div class="chat-window-title">
               <h2 id="chatUserName">Jane Smith</h2>
               <span id="chatUserEmail" class="user-email"></span>
             </div>
@@ -65,13 +73,18 @@
         <div class="chat-messages flex flex-column flex-grow gap-xs"></div>
         <!-- Send message bar -->
         <div class="message-send-bar flex flex-center m-sm p-sm">
+          <ion-icon class="emoji" name="happy-outline"></ion-icon>
           <input
             type="text"
             id="messageInput"
             class="message-input flex-grow"
             placeholder="Write a message..."
           />
-          <button id="sendMessageBtn" class="send-button">
+          <ion-icon
+            class="add-file-icon"
+            name="document-attach-outline"
+          ></ion-icon>
+          <button id="sendMessageBtn" class="flex flex-center send-button">
             <img
               class="send-icon"
               src="../../../public/send-outline.svg"

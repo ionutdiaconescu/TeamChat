@@ -1,4 +1,4 @@
-import { createDomElementFromHtmlString } from "./dom.services";
+import { createDomElementFromHtmlString } from "./dom.service";
 
 const loadingSpinnerTemplate = `
   <div class="loading-spinner">

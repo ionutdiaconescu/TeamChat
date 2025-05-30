@@ -6,7 +6,7 @@ import {
 } from "firebase/auth";
 import { app } from "../services/db.services.ts";
 
-import { AuthCredentials } from "../utils/types.ts";
+import { AuthCredentials } from "./auth.services.types.ts";
 /**
  * register()
  *
@@ -55,4 +55,23 @@ export const loginUser = async ({ email, password }: AuthCredentials) => {
     }
     throw new Error("Email or password is incorrect");
   }
+};
+
+export const handleServerAuthError = (error: any) => {
+  const defaultErrorMessage = "An unknown error occurred. Please try again.";
+
+  if (error?.code) {
+    switch (error.code) {
+      case "auth/email-already-in-use":
+        return "This email is already registered. Please log in instead.";
+      case "auth/invalid-email":
+        return "The email address is not valid.";
+      case "auth/weak-password":
+        return "Password is too weak. Try a stronger one.";
+      default:
+        return defaultErrorMessage;
+    }
+  }
+
+  return defaultErrorMessage;
 };

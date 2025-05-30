@@ -5,12 +5,12 @@ import {
   validateConfirmPassword,
   addInputValidation,
 } from "../../services/validation.service.ts";
-import { configureElement } from "../../services/dom.services";
+import { configureElement } from "../../services/dom.service.ts";
 import {
   renderLoadingSpinner,
   removeLoadingSpinner,
 } from "../../services/loading.service";
-import { RegisterElements } from "../../utils/types";
+import { RegisterElements } from "./register.types.ts";
 import { updateDbDoc } from "../../services/db.services.ts";
 
 const elements: RegisterElements = {

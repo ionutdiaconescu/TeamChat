@@ -1,4 +1,4 @@
-import { createDomElement } from "../../services/dom.services";
+import { createDomElement } from "../../services/dom.service";
 export const createMessageBubble = (
   message: string,
   time: string,

@@ -1,16 +1,19 @@
 :root {
-  /* Backgrounds */
-  --bg-color: #eaedf0;
-  --bg-color-dark: #343a40;
+  /* background colors */
+  --bg-color-white: #f8f9fa;
+  --bg-color-orange: #efa985;
+  --bg-color-orange-hover: #f4ccb8;
 
   /* Text colors */
   --color-text: #252a2e;
-  --color-text-dark: #f2f2f2;
+  --color-text-white: #f2f2f2;
   --color-text-muted: #6c757d;
 
   /* Variant colors */
-  --color-primary: #2252b0;
-  --color-secondary: #b3ccff;
+  --color-primary: #4d426d;
+  --color-secondary: #5c5082;
+  --color-secondary-hover: #796aab;
+
   --success-color: #00b900;
   --error-color: #9d0000;
 
