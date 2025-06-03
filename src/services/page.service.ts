@@ -13,25 +13,25 @@ const createMenuLink = (): string => {
 };
 
 const headerTemplate = `
-<header class="flex justify-between align-center gap-md border-box sticky-top header">
-  <a class="logo" href="/pages/comments/">
-    <img src="/public/logo.webp" alt="logo" />
-    <span>TeamChat</span>
-  </a>
-  <input type="checkbox" id="nav-bar-hidden-toggle" class="nav-bar-hidden-toggle" />
-  <label for="nav-bar-hidden-toggle" class="mobile-menu-trigger">
-    <span class="dot"></span>
-    <span class="dot"></span>
-    <span class="dot"></span>
-  </label>
- <nav class="flex  nav-bar">
-    ${createMenuLink()}
-  </nav>
-  <button type="submit" id="logout-button" class="btn btn-secondary logout-button">
-    <span>Log out</span>
-  </button>
-
-</header>`;
+  <header class="flex justify-between align-center gap-md border-box sticky-top header">
+    <a class="logo" href="/pages/comments/">
+      <img src="/public/logo.webp" alt="logo" />
+      <span>TeamChat</span>
+    </a>
+    <input type="checkbox" id="nav-bar-hidden-toggle" class="nav-bar-hidden-toggle" />
+    <label for="nav-bar-hidden-toggle" class="mobile-menu-trigger">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </label>
+    <nav class="flex  nav-bar">
+      ${createMenuLink()}
+    </nav>
+    <button type="submit" id="logout-button" class="btn btn-secondary logout-button">
+      <span>Log out</span>
+    </button>
+  </header>
+`;
 
 export const loadHeader = (): void => {
   const headerElement = createDomElementFromHtmlString(headerTemplate);

@@ -11,6 +11,20 @@
     <form class="flex flex-column flex-center auth-form">
       <h2>Register</h2>
       <p class="message-box" role="alert"></p>
+
+      <div class="input-row">
+        <label for="username">Username</label>
+        <span class="icon"><ion-icon name="person"></ion-icon></span>
+        <input type="text" id="username" required />
+      </div>
+      <p class="message-box" id="register-username-error" role="alert"></p>
+      <div class="input-row">
+        <label for="gender">Gender</label>
+        <div class="gender-row">
+          <input type="radio" id="male" name="gender" value="male" /> Male
+          <input type="radio" id="female" name="gender" value="female" /> Female
+        </div>
+      </div>
       <div class="input-row">
         <label for="email">Email</label>
         <span class="icon"><ion-icon name="mail"></ion-icon></span>

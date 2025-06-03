@@ -4,20 +4,26 @@ import {
   updateProfile,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { app } from "../services/db.services.ts";
+import { app } from "../db-service/db.service.ts";
 
-import { AuthCredentials } from "./auth.services.types.ts";
+import { AuthCredentials } from "./auth.service.types.ts";
 /**
  * register()
  *
  * Create a new account for a user with a given email and password.
  * @param {string} name User's email.
+ * @param {string}gender User's gender.
  * @param {string} email User's email.
  * @param {string} password User's password
  */
 const auth = getAuth(app);
 
-export const register = async ({ email, password }: AuthCredentials) => {
+export const register = async ({
+  name,
+  gender,
+  email,
+  password,
+}: AuthCredentials) => {
   const userCredential = await createUserWithEmailAndPassword(
     auth,
     email,
@@ -26,10 +32,11 @@ export const register = async ({ email, password }: AuthCredentials) => {
   const user = userCredential.user;
 
   await updateProfile(user, {
+    displayName: name,
     photoURL: "/public/user-icon.webp",
   });
 
-  return user;
+  return { user, gender, name };
 };
 
 /**

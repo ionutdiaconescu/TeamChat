@@ -1,19 +1,21 @@
-import { register } from "../../services/auth.services.ts";
+import { register } from "./../../services/auth-service/auth.service.ts";
 import {
+  validateNameInput,
   validateEmailInput,
   validatePasswordInput,
   validateConfirmPassword,
   addInputValidation,
-} from "../../services/validation.service.ts";
+} from "./../../services/validation-service/validation.service.ts";
 import { configureElement } from "../../services/dom.service.ts";
 import {
   renderLoadingSpinner,
   removeLoadingSpinner,
 } from "../../services/loading.service";
 import { RegisterElements } from "./register.types.ts";
-import { updateDbDoc } from "../../services/db.services.ts";
+import { updateDbDoc } from "./../../services/db-service/db.service.ts";
 
 const elements: RegisterElements = {
+  nameInput: document.getElementById("username") as HTMLInputElement,
   emailInput: document.getElementById("email") as HTMLInputElement,
   passwordInput: document.getElementById("password") as HTMLInputElement,
   confirmPasswordInput: document.getElementById(
@@ -22,6 +24,7 @@ const elements: RegisterElements = {
   registerBtn: document.getElementById("registerBtn") as HTMLButtonElement,
   messageBox: document.querySelector(".message-box") as HTMLDivElement,
   form: document.querySelector(".auth-form") as HTMLFormElement,
+  nameError: document.getElementById("register-username-error") as HTMLElement,
   emailError: document.getElementById("register-email-error") as HTMLElement,
   passwordError: document.getElementById(
     "register-password-error"
@@ -39,6 +42,8 @@ function initializePage() {
   elements.registerBtn?.addEventListener("click", onSubmit);
 }
 function initializeInputValidation() {
+  addInputValidation(elements.nameInput, validateNameInput, elements.nameError);
+
   addInputValidation(
     elements.emailInput,
     validateEmailInput,
@@ -90,14 +95,24 @@ async function registerUser() {
   renderLoadingSpinner(elements.formSection);
 
   try {
-    const user = await register({
+    const genderInput = document.querySelector(
+      'input[name="gender"]:checked'
+    ) as HTMLInputElement;
+    const gender = genderInput ? genderInput.value : "";
+    const name = elements.nameInput.value;
+
+    const { user } = await register({
       email: elements.emailInput.value,
       password: elements.passwordInput.value,
+      name,
+      gender,
     });
-    // await updateUserProfile(user)
+
     await updateDbDoc("users", user.uid, {
       firebaseAuthId: user.uid,
       email: elements.emailInput.value,
+      name,
+      gender,
       status: "Online",
       lastSeen: new Date().toLocaleString(),
     });
@@ -106,7 +121,6 @@ async function registerUser() {
       "message-box success",
       "Registration successful"
     );
-    // Redirect after 1.5 sec
     setTimeout(() => {
       window.location.href = "/src/pages/chat/index.html";
     }, 1000);

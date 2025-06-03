@@ -1,9 +1,9 @@
 import validator from "validator";
-import { configureElement } from "./dom.service.ts";
+import { configureElement } from "../dom.service.ts";
 import {
   InputValidator,
   DualFieldValidator,
-} from "./validation.service.types.ts";
+} from "../validation.service.types.ts";
 
 // ---------------- VALIDATION HELPERS ----------------
 

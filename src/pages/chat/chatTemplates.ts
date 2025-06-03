@@ -20,7 +20,7 @@ export const createMessageBubble = (
   return bubble;
 };
 
-export const createFriendItem = (name: string, status: string): HTMLElement => {
+export const createFriendItem = (name: string, status: string, isOnline: boolean): HTMLElement => {
   const avatar = createDomElement("div", "avatar", "");
   const nameSpan = createDomElement("span", "name", name);
   const statusSpan = createDomElement("span", "status", status);

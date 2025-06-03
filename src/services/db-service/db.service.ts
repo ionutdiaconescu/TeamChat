@@ -17,7 +17,7 @@ import {
   UpdateDbDocFn,
 } from "./db.service.types.ts";
 
-import config from "./config.ts";
+import config from "../../../config.ts";
 
 const firebaseConfig = config.firebase;
 export const app = initializeApp(firebaseConfig);
