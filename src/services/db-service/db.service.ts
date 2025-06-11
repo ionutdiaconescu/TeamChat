@@ -16,12 +16,14 @@ import {
   GetDbDocsFn,
   UpdateDbDocFn,
 } from "./db.service.types.ts";
+import { getAuth } from "firebase/auth";
 
 import config from "../../../config.ts";
 
 const firebaseConfig = config.firebase;
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 
 export const getSingleDbDoc: GetSingleDbDocFn = async (collectionName, id) => {
   const docRef = doc(db, collectionName, id);

@@ -1,51 +1,58 @@
 import { Socket } from "socket.io-client";
-import { createFriendItem, createMessageBubble } from './chatTemplates';
-import { loadHeader } from './../../services/page.service';
-import { connectToWebSocketsServer } from '../../services/web-sockets-service/web-sockets.service';
-import { ChatMessage, WssMessage } from './chat.types';
+import { createFriendItem, createMessageBubble } from "./chatTemplates";
+import { loadHeader } from "./../../services/page.service";
+import { connectToWebSocketsServer } from "../../services/web-sockets-service/web-sockets.service";
+import { ChatMessage, WssMessage } from "./chat.types";
+import { auth } from "../../services/db-service/db.service";
 
- import friends from './../../mocks/friends.json' assert { type: 'json' };
+initializePage();
+const loggedInUser =
+  auth.currentUser?.displayName || auth.currentUser?.email || "Anonim";
 
-const messagesContainer = document.querySelector('.chat-messages')!;
+const messagesContainer = document.querySelector(".chat-messages")!;
 const messageInput = document.getElementById(
-  'messageInput'
+  "messageInput"
 )! as HTMLInputElement;
-const sendBtn = document.getElementById('sendMessageBtn')!;
+const sendBtn = document.getElementById("sendMessageBtn")!;
 
 let wsSocket: Socket | null = null;
 let messages: ChatMessage[] = [];
 
-const loggedInUser = 'Jane Smith';
-
-initializePage();
-
 function initializePage() {
   loadHeader();
-  renderFriendsList();
+
   connectToWsServer();
-  sendBtn.addEventListener('click', onSendMessage);
+  sendBtn.addEventListener("click", onSendMessage);
 }
 
 function connectToWsServer() {
   wsSocket = connectToWebSocketsServer({
     onMessage: onRecieveMessageFromWsServer,
-    onError: onWssError
+    onError: onWssError,
   });
+
+  // Ascultă lista de prieteni de la server
+  wsSocket.on("friends", (users: any[]) => {
+    renderFriendsList(users);
+  });
+
+  // Cere lista de prieteni după conectare
+  wsSocket.emit("get-friends");
 }
 
 function onRecieveMessageFromWsServer(message: WssMessage) {
   switch (message.type) {
-    case 'load-chat-messages':
+    case "load-chat-messages":
       messages = message.data || [];
       renderMessages();
       break;
-    case 'chat-update':
+    case "chat-update":
       const newMessage = message.data;
 
       const messageBubble = createMessageBubble(
         newMessage.message,
         newMessage.time,
-        'left',
+        "left",
         newMessage.from
       );
       messagesContainer.append(messageBubble);
@@ -54,13 +61,14 @@ function onRecieveMessageFromWsServer(message: WssMessage) {
 }
 
 function onWssError(error: Error) {
-  console.error('WebSocket error:', error);
+  console.error("WebSocket error:", error);
 }
 
-function renderFriendsList() {
-  const friendList = document.querySelector('.friend-list');
+function renderFriendsList(friends: any[] = []) {
+  const friendList = document.querySelector(".friend-list");
 
   if (friendList) {
+    friendList.innerHTML = "";
     friends.forEach((friend) => {
       const userItem = createFriendItem(
         friend.name,
@@ -78,7 +86,7 @@ function renderMessages() {
       const messageBubble = createMessageBubble(
         msg.message,
         msg.time,
-        msg.from === loggedInUser ? 'right' : 'left',
+        msg.from === loggedInUser ? "right" : "left",
         msg.from
       );
 
@@ -91,7 +99,7 @@ function renderMessages() {
 
 function onSendMessage() {
   const message = messageInput.value;
-  if (message.trim() === '') return;
+  if (message.trim() === "") return;
 
   const newMessage = {
     from: loggedInUser,
@@ -104,16 +112,16 @@ function onSendMessage() {
   const messageBubble = createMessageBubble(
     newMessage.message,
     newMessage.time,
-    'right',
+    "right",
     loggedInUser
   );
 
   if (wsSocket) {
-    wsSocket.emit('send-chat-message', newMessage);
+    wsSocket.emit("send-chat-message", newMessage);
   } else {
-    throw new Error('WebSocket connection is not established');
+    throw new Error("WebSocket connection is not established");
   }
 
   messagesContainer.append(messageBubble);
-  messageInput.value = '';
+  messageInput.value = "";
 }
