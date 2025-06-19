@@ -3,11 +3,7 @@ import { createFriendItem, createMessageBubble } from "./chatTemplates";
 import { loadHeader } from "./../../services/page.service";
 import { connectToWebSocketsServer } from "../../services/web-sockets-service/web-sockets.service";
 import { ChatMessage, WssMessage } from "./chat.types";
-import { auth } from "../../services/db-service/db.service";
-
-initializePage();
-const loggedInUser =
-  auth.currentUser?.displayName || auth.currentUser?.email || "Anonim";
+import { getLoggedInUser } from './../../services/auth-service/auth.service';
 
 const messagesContainer = document.querySelector(".chat-messages")!;
 const messageInput = document.getElementById(
@@ -18,10 +14,15 @@ const sendBtn = document.getElementById("sendMessageBtn")!;
 let wsSocket: Socket | null = null;
 let messages: ChatMessage[] = [];
 
-function initializePage() {
-  loadHeader();
+initializePage();
 
+async function initializePage() {
+  loadHeader();
   connectToWsServer();
+
+  const friends = await getFriends();
+  renderFriendsList(friends);
+
   sendBtn.addEventListener("click", onSendMessage);
 }
 
@@ -30,14 +31,6 @@ function connectToWsServer() {
     onMessage: onRecieveMessageFromWsServer,
     onError: onWssError,
   });
-
-  // Ascultă lista de prieteni de la server
-  wsSocket.on("friends", (users: any[]) => {
-    renderFriendsList(users);
-  });
-
-  // Cere lista de prieteni după conectare
-  wsSocket.emit("get-friends");
 }
 
 function onRecieveMessageFromWsServer(message: WssMessage) {
@@ -80,13 +73,23 @@ function renderFriendsList(friends: any[] = []) {
   }
 }
 
+async function getFriends() {
+  try {
+    const friendsResponse = await fetch("./../../mocks/friends.json");
+    const friends = await friendsResponse.json();
+    return friends;
+  } catch (error) {
+    console.error("Error fetching friends:", error);
+  }
+}
+
 function renderMessages() {
   if (messagesContainer) {
     messages.forEach((msg) => {
       const messageBubble = createMessageBubble(
         msg.message,
         msg.time,
-        msg.from === loggedInUser ? "right" : "left",
+        msg.from === getLoggedInUser() ? "right" : "left",
         msg.from
       );
 
@@ -102,7 +105,7 @@ function onSendMessage() {
   if (message.trim() === "") return;
 
   const newMessage = {
-    from: loggedInUser,
+    from: getLoggedInUser(),
     time: new Date().toISOString(),
     message,
   };
@@ -113,7 +116,7 @@ function onSendMessage() {
     newMessage.message,
     newMessage.time,
     "right",
-    loggedInUser
+    getLoggedInUser()
   );
 
   if (wsSocket) {

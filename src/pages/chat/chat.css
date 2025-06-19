@@ -7,17 +7,20 @@
 *::after {
   box-sizing: border-box;
 }
+
 body {
   background: var(--color-primary);
   color: var(--color-text);
   height: 100vh;
   overflow: hidden;
 }
+
 .chat-layout {
   height: 80%;
   font-family: Arial, sans-serif;
   color: var(--color-text);
 }
+
 .chat-window {
   flex-grow: 1;
   height: 100%;
@@ -39,6 +42,7 @@ body {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .sidebar::-webkit-scrollbar {
   display: none;
 }
@@ -101,17 +105,16 @@ body {
 .friend {
   display: flex;
   align-items: center;
-  justify-content: start;
+  gap: var(--size-xs);
   width: 100%;
-  padding: 0.5rem 0.25rem;
+  padding: var(--size-xs) var(--size-sm) var(--size-xs) var(--size-xs);
   transition: background 0.2s;
   border: 1px solid var(--border-color-light);
   cursor: pointer;
   border-radius: var(--size-md);
 }
+
 .friend::after {
-  position: absolute;
-  left: 270px;
   content: "";
   height: var(--size-xs);
   width: var(--size-xs);
@@ -127,7 +130,6 @@ body {
   width: var(--size-xl);
   height: var(--size-xl);
   border-radius: 50%;
-  margin-right: var(--size-sm);
   flex-shrink: 0;
   background-image: url("../../../public/user-icon.webp");
   background-size: cover;
@@ -137,6 +139,7 @@ body {
 .friend-info {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 }
 
 .name {

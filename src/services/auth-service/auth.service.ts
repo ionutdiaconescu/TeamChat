@@ -3,10 +3,10 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   signInWithEmailAndPassword,
-} from "firebase/auth";
-import { app } from "../db-service/db.service.ts";
+} from 'firebase/auth';
+import { app } from '../db-service/db.service.ts';
 
-import { AuthCredentials } from "./auth.service.types.ts";
+import { AuthCredentials } from './auth.service.types.ts';
 /**
  * register()
  *
@@ -33,7 +33,7 @@ export const register = async ({
 
   await updateProfile(user, {
     displayName: name,
-    photoURL: "/public/user-icon.webp",
+    photoURL: '/public/user-icon.webp',
   });
 
   return { user, gender, name };
@@ -57,28 +57,32 @@ export const loginUser = async ({ email, password }: AuthCredentials) => {
     );
     return userCredential.user;
   } catch (error: unknown) {
-    if (typeof error === "object" && error !== null && "message" in error) {
+    if (typeof error === 'object' && error !== null && 'message' in error) {
       console.error((error as { message: string }).message);
     }
-    throw new Error("Email or password is incorrect");
+    throw new Error('Email or password is incorrect');
   }
 };
 
 export const handleServerAuthError = (error: any) => {
-  const defaultErrorMessage = "An unknown error occurred. Please try again.";
+  const defaultErrorMessage = 'An unknown error occurred. Please try again.';
 
   if (error?.code) {
     switch (error.code) {
-      case "auth/email-already-in-use":
-        return "This email is already registered. Please log in instead.";
-      case "auth/invalid-email":
-        return "The email address is not valid.";
-      case "auth/weak-password":
-        return "Password is too weak. Try a stronger one.";
+      case 'auth/email-already-in-use':
+        return 'This email is already registered. Please log in instead.';
+      case 'auth/invalid-email':
+        return 'The email address is not valid.';
+      case 'auth/weak-password':
+        return 'Password is too weak. Try a stronger one.';
       default:
         return defaultErrorMessage;
     }
   }
 
   return defaultErrorMessage;
+};
+
+export const getLoggedInUser = () => {
+  return auth.currentUser?.displayName || auth.currentUser?.email || 'Anonim';
 };

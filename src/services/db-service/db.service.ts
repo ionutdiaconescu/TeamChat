@@ -10,11 +10,13 @@ import {
   collection,
   where,
   serverTimestamp,
+  addDoc,
 } from "firebase/firestore";
 import {
   GetSingleDbDocFn,
   GetDbDocsFn,
   UpdateDbDocFn,
+  AddDbDocFn,
 } from "./db.service.types.ts";
 import { getAuth } from "firebase/auth";
 
@@ -45,15 +47,24 @@ export const getDbDocs: GetDbDocsFn = async (
 ) => {
   const conditions = whereConditions.map((cond) => where(...cond));
 
-  const q = query(collection(db, collectionName), ...conditions);
+  const queryResults = query(collection(db, collectionName), ...conditions);
 
-  const response = await getDocs(q);
+  const response = await getDocs(queryResults);
 
   return response.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
 };
+
+export const addDbDoc: AddDbDocFn = async (
+  collectionName: string,
+  data: Record<string, any>
+): Promise<string> => {
+  const docRef = await addDoc(collection(db, collectionName), { ...data, timestamp: serverTimestamp() });
+  return docRef.id;
+};
+
 export const updateDbDoc: UpdateDbDocFn = async (
   collection,
   id,

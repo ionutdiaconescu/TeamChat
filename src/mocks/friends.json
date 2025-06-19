@@ -1,0 +1,4 @@
+[
+  { "id": "1", "name": "Alex Popescu", "status": "online", "isOnline": true },
+  { "id": "2", "name": "Maria Ionescu", "status": "offline", "isOnline": false }
+]
