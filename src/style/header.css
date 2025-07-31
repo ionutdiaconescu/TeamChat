@@ -1,7 +1,15 @@
 @import url("../style/design-system/index.css");
-
+.desktop-only {
+  display: flex !important;
+}
+.mobile-only {
+  display: none !important;
+}
 .header {
+  display: flex;
   position: relative;
+  align-items: center;
+  justify-content: space-between;
   padding: var(--size-sm);
   width: 100vw;
   backdrop-filter: blur(10px);
@@ -24,7 +32,7 @@ a.logo img {
 
 a.logo span {
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
+  font-weight: bold;
   margin-left: var(--size-xs);
   color: var(--color-text-white);
 }
@@ -34,8 +42,10 @@ a.logo span {
 }
 
 .nav-bar {
+  display: flex;
   position: static;
   flex-direction: row;
+  align-items: center;
   background: transparent;
   box-shadow: none;
   border-radius: 0;
@@ -52,11 +62,10 @@ a.logo span {
   text-decoration: none;
   color: var(--color-text-white);
   font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
+  font-weight: bold;
   padding: var(--size-xs) var(--size-sm);
   border-radius: var(--radius-md);
   transition: background-color 0.3s, color 0.3s;
-  translate: 250px;
 }
 .nav-bar a:hover {
   background: var(--color-secondary-hover);
@@ -66,11 +75,19 @@ a.logo span {
   display: none;
 }
 
+.logout-button span {
+  color: var(--color-text-white);
+}
 /* --- MOBILE --- */
 @media all and (max-width: 1199px) {
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-only {
+    display: flex !important;
+    width: 100%;
+  }
   .header {
-    --menu-width: var(--width-sm);
-    --negative-menu-width: var(--negative-width-sm);
     overflow: hidden;
   }
 
@@ -86,14 +103,6 @@ a.logo span {
     color: var(--color-text-white);
     transition: right 0.3s linear;
     z-index: var(--z-index-200);
-  }
-
-  .logout-button {
-    position: fixed;
-    top: calc(100vh - var(--size-3xl));
-    right: var(--negative-menu-width);
-    width: calc(var(--menu-width) - var(--size-2xl));
-    transition: right 0.3s linear;
   }
 
   .mobile-menu-trigger {
@@ -112,7 +121,7 @@ a.logo span {
     z-index: var(--z-index-200);
     flex-direction: column;
     justify-content: center;
-    gap: 4px;
+    gap: var(--size-xxs);
   }
   .nav-bar a:hover {
     background: var(--bg-color-orange-hover);
@@ -127,18 +136,10 @@ a.logo span {
     right: var(--size-md);
   }
 
-  .mobile-menu-trigger > span {
-    display: inline-block;
-    width: 100%;
-    height: 3px;
-    background-color: var(--bg-color);
-    transition: transform 0.2s;
-  }
-
   .mobile-menu-trigger > .dot {
     display: block;
-    width: 8px;
-    height: 8px;
+    width: var(--size-xs);
+    height: var(--size-xs);
     border-radius: 50%;
     background: var(--color-text-white);
     margin: 2px auto;
@@ -153,16 +154,19 @@ a.logo span {
   .nav-bar {
     position: absolute;
     top: calc(100% + 20px);
-    right: 20px;
-    width: 270px;
+    left: auto;
+    right: 5vw;
+    width: 30vw;
+    max-width: 340px;
+    min-width: 180px;
     min-height: 120px;
     background: var(--bg-color-orange);
     border-radius: 56px 56px 56px 56px / 72px 72px 48px 48px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    padding: var(--size-lg) var(--size-xl) var(--size-lg) var(--size-lg);
+    align-items: stretch;
+    padding: var(--size-md) var(--size-md);
     pointer-events: none;
     visibility: hidden;
     transform: translateY(-40px) scale(0.95);
@@ -173,7 +177,6 @@ a.logo span {
     width: 100%;
     justify-content: flex-start;
     padding: var(--size-xs) var(--size-lg);
-    translate: 0;
   }
   .nav-bar::after {
     display: block;
@@ -194,5 +197,35 @@ a.logo span {
     pointer-events: auto;
     visibility: visible;
     transform: translateY(0) scale(1);
+  }
+
+  .logout-button.mobile-only {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    background: transparent;
+    color: var(--color-text-white);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: var(--size-xs) var(--size-lg);
+    font-size: var(--font-size-md);
+    font-weight: bold;
+    margin-top: 0;
+    box-shadow: none;
+    text-align: left;
+    min-height: unset;
+    height: auto;
+  }
+  .logout-button.mobile-only span {
+    color: var(--color-text-white);
+    font-size: var(--font-size-md);
+    font-weight: bold;
+    padding: 0;
+    margin: 0;
+  }
+  .logout-button.mobile-only:hover {
+    background: var(--bg-color-orange-hover);
+    color: #fff;
   }
 }

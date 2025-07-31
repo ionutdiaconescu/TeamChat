@@ -29,6 +29,15 @@ body {
   border-radius: var(--size-md);
 }
 
+.chat-window-title {
+  font-size: var(--size-md);
+}
+.user-email {
+  display: block;
+  font-size: var(--size-sm);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
 .chat-user-info {
   background: var(--color-secondary);
 }
@@ -71,13 +80,17 @@ body {
   border-radius: var(--size-md);
   outline: none;
   background-color: var(--bg-color);
-  color: var(--color-text);
+  color: var(--color-text-white);
   font-size: var(--size-sm);
   transition: border-color 0.3s, box-shadow 0.3s;
   margin: 0;
   box-sizing: border-box;
 }
 
+.friend-search-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
 .search-icon {
   position: absolute;
   right: var(--size-sm);
@@ -114,14 +127,6 @@ body {
   border-radius: var(--size-md);
 }
 
-.friend::after {
-  content: "";
-  height: var(--size-xs);
-  width: var(--size-xs);
-  background-color: var(--success-color);
-  border-radius: 50%;
-}
-
 .friend:hover {
   background-color: var(--color-secondary-hover);
 }
@@ -134,12 +139,25 @@ body {
   background-image: url("../../../public/user-icon.webp");
   background-size: cover;
   background-position: center;
+  border: 4px solid transparent;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.avatar-online {
+  border-color: var(--success-color);
 }
 
-.friend-info {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+.avatar-offline {
+  border-color: var(--color-text-muted);
+}
+.friend-info .email {
+  display: block;
+  font-size: 0.9em;
+  max-width: 140px;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .name {
@@ -148,16 +166,65 @@ body {
   font-size: var(--size-sm);
 }
 
-.status {
-  color: var(--color-text-muted);
-  font-size: var(--size-sm);
+.remove-friend-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  color: var(--error-color);
 }
 
-.status.online {
-  color: var(--success-color);
+.remove-friend-btn:hover {
+  color: var(--error-color);
+  scale: 1.1;
+  transition: 0.3s;
+}
+
+.add-friend-btn {
+  margin-top: 12px;
+  padding: 8px 14px;
+  background-color: var(--bg-color-orange);
+  color: white;
   font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+}
+.add-friend-btn:hover {
+  scale: 1.1;
+  transition: 0.3s;
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 12px;
+}
+
+.error {
+  color: red;
+  font-size: 0.9em;
+}
 .chat-header {
   border-bottom: 1px solid var(--border-color-light);
   background-color: var(--color-primary);
@@ -234,18 +301,22 @@ body {
   border: transparent;
   outline: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-
   color: var(--color-text);
 }
+
+.message-input::placeholder {
+  color: var(--bg-color-orange);
+  opacity: 0.7;
+}
 .emoji {
-  color: var(--color-text-muted);
+  color: var(--bg-color-orange);
   width: var(--size-lg);
   height: var(--size-lg);
   cursor: pointer;
   translate: var(--size-xl);
 }
 .add-file-icon {
-  color: var(--color-text-muted);
+  color: var(--bg-color-orange);
   width: var(--size-lg);
   height: var(--size-lg);
   cursor: pointer;
@@ -261,7 +332,6 @@ body {
 .send-icon {
   height: var(--size-lg);
   width: var(--size-lg);
-  rotate: -45deg;
 }
 .send-icon:hover {
   scale: 1.1;
@@ -281,36 +351,10 @@ body {
   object-fit: cover;
 }
 
-.user-email {
-  display: block;
-  font-size: var(--size-xs);
-  color: var(--color-text-muted);
-  margin-top: 2px;
-}
-
-.status-dot {
-  display: inline-block;
-  width: var(--size-xs);
-  height: var(--size-xs);
-  border-radius: 50%;
-  margin-left: 0.5rem;
-  background-color: var(--border-color-light);
-  vertical-align: middle;
-}
-.status-dot.online {
-  background-color: var(--success-color);
-}
-.status-dot.online {
-  color: var(--success-color);
-}
-
-.status-dot.offline {
-  color: var(--color-text-muted);
-}
-
 @media (max-width: 600px) {
   .sidebar {
     width: 90vw;
+    height: 18%;
     margin: var(--size-xs);
     font-size: var(--size-sm);
   }

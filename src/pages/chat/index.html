@@ -32,27 +32,14 @@
             />
             <img
               class="search-icon"
-              src="../../../public/search-outline.svg"
+              src="../../../public/search-icon.webp"
               alt=""
             />
           </div>
         </div>
 
         <!-- Friends list -->
-        <ul class="friend-list flex flex-column justify-between gap-sm">
-          <li class="friend">
-            <img
-              class="avatar"
-              src="../../../public/user-icon.webp"
-              alt="Avatar"
-            />
-            <div class="friend-info">
-              <span class="name">Jane Smith</span>
-              <span class="user-email">jane@email.com</span>
-            </div>
-            <span class="status-dot"></span>
-          </li>
-        </ul>
+        <ul class="friend-list flex flex-column justify-between gap-sm"></ul>
       </aside>
       <!-- Chat zone -->
       <main class="chat-window flex flex-column">
@@ -64,7 +51,7 @@
               alt="User avatar"
             />
             <div class="chat-window-title">
-              <h2 id="chatUserName">Jane Smith</h2>
+              <span id="chatUserName" class="user-name"></span>
               <span id="chatUserEmail" class="user-email"></span>
             </div>
           </div>
@@ -87,7 +74,7 @@
           <button id="sendMessageBtn" class="flex flex-center send-button">
             <img
               class="send-icon"
-              src="../../../public/send-outline.svg"
+              src="../../../public/send-icon.webp"
               alt="send-icon"
             />
           </button>

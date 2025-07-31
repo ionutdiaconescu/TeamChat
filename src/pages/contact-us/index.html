@@ -3,13 +3,60 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/src/pages/contact-us/contact.css" />
-    <link rel="stylesheet" href="/src/style/design-system/index.css" />
+    <link rel="stylesheet" href="./contact.css" />
+    <link rel="stylesheet" href="../../style/design-system/index.css" />
+    <link rel="stylesheet" href="../../style/header.css" />
     <script type="module" src="./contact-us.ts"></script>
-    <link rel="stylesheet" href="" />
-    <title>TeamChat contact</title>
+
+    <title>Contact TeamChat</title>
   </head>
   <body>
-    Contact
+    <header id="header"></header>
+    <main class="contact-container p-md">
+      <h1>Contact TeamChat</h1>
+      <div class="contact-card">
+        <div class="contact-icon phone"></div>
+        <div>
+          <div class="label">Telefon</div>
+          <a href="tel:0731846797" class="contact-link">0731 846 797</a>
+        </div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon email"></div>
+        <div>
+          <div class="label">Email</div>
+          <a href="mailto:ionutdiaconescu95@yahoo.com" class="contact-link"
+            >ionutdiaconescu95@yahoo.com</a
+          >
+        </div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon gmail"></div>
+        <div>
+          <div class="label">Gmail</div>
+          <a href="mailto:diaconescuionut95@gmail.com" class="contact-link"
+            >diaconescuionut95@gmail.com</a
+          >
+        </div>
+      </div>
+      <div class="contact-social">
+        <a
+          href="https://wa.me/40731846797"
+          target="_blank"
+          class="social-btn whatsapp"
+          title="WhatsApp"
+        ></a>
+        <a
+          href="mailto:ionutdiaconescu95@yahoo.com"
+          class="social-btn email"
+          title="Trimite email"
+        ></a>
+        <a
+          href="mailto:diaconescuionut95@gmail.com"
+          class="social-btn gmail"
+          title="Trimite Gmail"
+        ></a>
+      </div>
+    </main>
   </body>
 </html>

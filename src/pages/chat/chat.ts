@@ -1,30 +1,141 @@
+//-------IMPORTS-------
 import { Socket } from "socket.io-client";
-import { createFriendItem, createMessageBubble } from "./chatTemplates";
+import {
+  createAddFriendButton,
+  createAddFriendModal,
+  createFriendItem,
+  createMessageBubble,
+} from "./chatTemplates";
 import { loadHeader } from "./../../services/page.service";
 import { connectToWebSocketsServer } from "../../services/web-sockets-service/web-sockets.service";
 import { ChatMessage, WssMessage } from "./chat.types";
-import { getLoggedInUser } from './../../services/auth-service/auth.service';
+import {
+  getLoggedInUser,
+  onUserAuthStateChanged,
+} from "./../../services/auth-service/auth.service";
 
+import {
+  addFriendDoc,
+  findUserByEmail,
+  getFriendsOfCurrentUser,
+  removeFriendDoc,
+} from "../../services/db-service/db.service";
+
+// --- DOM ELEMENTS ---
 const messagesContainer = document.querySelector(".chat-messages")!;
+const chatUserName = document.getElementById("chatUserName")!;
+const chatUserEmail = document.getElementById("chatUserEmail")!;
+const friendList = document.querySelector(".friend-list")!;
+const sendBtn = document.getElementById("sendMessageBtn")!;
 const messageInput = document.getElementById(
   "messageInput"
 )! as HTMLInputElement;
-const sendBtn = document.getElementById("sendMessageBtn")!;
+const searchInput = document.querySelector<HTMLInputElement>(
+  ".friend-search-input"
+);
 
 let wsSocket: Socket | null = null;
 let messages: ChatMessage[] = [];
 
-initializePage();
+// --- INIT & AUTH ---
+onUserAuthStateChanged((user) => {
+  if (!user) {
+    window.location.href = "./index.html";
+  } else {
+    initializePage();
+  }
+});
 
 async function initializePage() {
+  if (!getLoggedInUser()) {
+    window.location.href = "/index.html";
+    return;
+  }
   loadHeader();
+
+  const user = getLoggedInUser();
+  if (user) {
+    chatUserName.textContent = user.displayName || user.email || "Anonim";
+    chatUserEmail.textContent = user.email || "";
+  }
+
   connectToWsServer();
-
-  const friends = await getFriends();
-  renderFriendsList(friends);
-
+  await loadFriends();
   sendBtn.addEventListener("click", onSendMessage);
+  if (searchInput) {
+    searchInput.addEventListener(
+      "input",
+      debounce(() => loadFriends(searchInput.value), 350)
+    );
+  }
 }
+
+// --- UI FUNCTIONS ---
+async function loadFriends(searchTerm: string = "") {
+  const friends = await getFriendsOfCurrentUser();
+  friendList.innerHTML = "";
+  const filtered = searchTerm
+    ? friends.filter(
+        (friend: any) =>
+          friend.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          friend.email.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : friends;
+  filtered.forEach((friend: any) => {
+    const friendItem = createFriendItem(
+      friend.name,
+      friend.email,
+      friend.status || "offline",
+      async () => {
+        await removeFriendDoc(friend.id);
+        await loadFriends(searchTerm);
+      },
+      friend.id
+    );
+    friendList.appendChild(friendItem);
+  });
+  friendList.appendChild(createAddFriendButton(openAddFriendModal));
+}
+
+function renderMessages() {
+  if (messagesContainer) {
+    messagesContainer.innerHTML = "";
+    const user = getLoggedInUser();
+    messages.forEach((msg) => {
+      const isMine = msg.from === (user?.uid || user?.email);
+
+      const displayName =
+        typeof msg.name === "string" && msg.name.trim()
+          ? msg.name
+          : typeof msg.email === "string" && msg.email.trim()
+          ? msg.email
+          : msg.from;
+      const messageBubble = createMessageBubble(
+        msg.message,
+        msg.time,
+        isMine ? "right" : "left",
+        displayName
+      );
+      messagesContainer.append(messageBubble);
+    });
+  }
+}
+
+// --- MODALS ---
+function openAddFriendModal() {
+  const modal = createAddFriendModal(async (email) => {
+    const user = await findUserByEmail(email);
+    await addFriendDoc({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    });
+    await loadFriends();
+  });
+  document.body.appendChild(modal);
+}
+
+// --- WEBSOCKET ---
 
 function connectToWsServer() {
   wsSocket = connectToWebSocketsServer({
@@ -41,12 +152,13 @@ function onRecieveMessageFromWsServer(message: WssMessage) {
       break;
     case "chat-update":
       const newMessage = message.data;
-
+      const displayName =
+        newMessage.name || newMessage.email || newMessage.from;
       const messageBubble = createMessageBubble(
         newMessage.message,
         newMessage.time,
         "left",
-        newMessage.from
+        displayName
       );
       messagesContainer.append(messageBubble);
       break;
@@ -57,55 +169,15 @@ function onWssError(error: Error) {
   console.error("WebSocket error:", error);
 }
 
-function renderFriendsList(friends: any[] = []) {
-  const friendList = document.querySelector(".friend-list");
-
-  if (friendList) {
-    friendList.innerHTML = "";
-    friends.forEach((friend) => {
-      const userItem = createFriendItem(
-        friend.name,
-        friend.status,
-        friend.isOnline
-      );
-      friendList.append(userItem);
-    });
-  }
-}
-
-async function getFriends() {
-  try {
-    const friendsResponse = await fetch("./../../mocks/friends.json");
-    const friends = await friendsResponse.json();
-    return friends;
-  } catch (error) {
-    console.error("Error fetching friends:", error);
-  }
-}
-
-function renderMessages() {
-  if (messagesContainer) {
-    messages.forEach((msg) => {
-      const messageBubble = createMessageBubble(
-        msg.message,
-        msg.time,
-        msg.from === getLoggedInUser() ? "right" : "left",
-        msg.from
-      );
-
-      messagesContainer.append(messageBubble);
-    });
-  }
-}
-
-// Send message
-
+// --- SEND MESSAGE ---
 function onSendMessage() {
   const message = messageInput.value;
   if (message.trim() === "") return;
-
+  const user = getLoggedInUser();
   const newMessage = {
-    from: getLoggedInUser(),
+    from: user?.uid || "Anonim",
+    name: user?.displayName || user?.email || "Anonim",
+    email: user?.email || "",
     time: new Date().toISOString(),
     message,
   };
@@ -116,7 +188,7 @@ function onSendMessage() {
     newMessage.message,
     newMessage.time,
     "right",
-    getLoggedInUser()
+    newMessage.name
   );
 
   if (wsSocket) {
@@ -127,4 +199,12 @@ function onSendMessage() {
 
   messagesContainer.append(messageBubble);
   messageInput.value = "";
+}
+
+function debounce<T extends (...args: any[]) => void>(fn: T, delay = 300) {
+  let timeout: ReturnType<typeof setTimeout>;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
 }
