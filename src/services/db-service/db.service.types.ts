@@ -32,3 +32,12 @@ export interface FirestoreDocument {
   [key: string]: any;
 }
 
+export type AddFriendToUser = (
+  userId: string,
+  friendId: string
+) => Promise<void>;
+
+export type RemoveFriendToUser = (
+  userId: string,
+  friendId: string
+) => Promise<void>;

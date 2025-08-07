@@ -1,12 +1,10 @@
 :root {
   /* background colors */
-  --bg-color-white: #f8f9fa;
-  --bg-color-orange: #efa985;
-  --bg-color-orange-hover: #f4ccb8;
+  --bg-color-white: #ffffff;
 
   /* Text colors */
   --color-text: #252a2e;
-  --color-text-white: #f2f2f2;
+  --color-text-white: #ffffff;
   --color-text-muted: #dadae4;
 
   /* Variant colors */
@@ -14,8 +12,8 @@
   --color-secondary: #5c5082;
   --color-secondary-hover: #796aab;
 
-  --success-color: #00b900;
-  --error-color: #9d0000;
+  --success-color: #28a026;
+  --error-color: #ff0000;
 
   /* Border colors */
   --border-color: #707070;

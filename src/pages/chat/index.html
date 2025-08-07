@@ -46,7 +46,7 @@
         <div class="chat-header">
           <div class="chat-user-info">
             <img
-              class="avatar chat-avatar"
+              class="avatar chat-avatar avatar-online"
               src="../../../public/user-icon.webp"
               alt="User avatar"
             />
@@ -58,15 +58,33 @@
         </div>
         <!-- Chat messages -->
         <div class="flex flex-column flex-grow gap-xs chat-messages"></div>
+
+        <!-- Emoji container -->
+        <li class="emoji-selector" id="emojiSelector">
+          <div class="input-container">
+            <div class="search-emoji">
+              <input type="text" name="" id="" placeholder="Search..." />
+            </div>
+          </div>
+          <ul id="emojiList" class="emoji-list"></ul>
+        </li>
         <!-- Send message bar -->
-        <div class="message-send-bar flex flex-center m-sm p-sm">
-          <ion-icon class="emoji" name="happy-outline"></ion-icon>
-          <input
-            type="text"
-            id="messageInput"
-            class="message-input flex-grow"
-            placeholder="Write a message..."
-          />
+        <div class="message-send-bar flex flex-center justify-center m-sm p-sm">
+          <div class="input-with-emoji">
+            <span id="emojiSelectorIcon" class="emoji-selector-icon"
+              ><ion-icon
+                class="emoji-selector-icon"
+                name="happy-outline"
+              ></ion-icon
+            ></span>
+            <input
+              type="text"
+              id="messageInput"
+              class="message-input flex-grow"
+              placeholder="Write a message..."
+            />
+          </div>
+
           <ion-icon
             class="add-file-icon"
             name="document-attach-outline"

@@ -5,19 +5,19 @@
 /* All margins */
 
 .m-xs {
-  margin: var(--size-xs);
+  margin: var(--size-xs); /* 8px */
 }
 
 .m-sm {
-  margin: var(--size-sm);
+  margin: var(--size-sm); /* 16px */
 }
 
 .m-md {
-  margin: var(--size-md);
+  margin: var(--size-md); /* 24px */
 }
 
 .m-lg {
-  margin: var(--size-lg);
+  margin: var(--size-lg); /* 32px */
 }
 
 /**
@@ -25,19 +25,19 @@
    */
 
 .m-h-xs {
-  margin: 0 var(--size-xs);
+  margin: 0 var(--size-xs); /* 8px */
 }
 
 .m-h-sm {
-  margin: 0 var(--size-sm);
+  margin: 0 var(--size-sm); /* 16px */
 }
 
 .m-h-md {
-  margin: 0 var(--size-md);
+  margin: 0 var(--size-md); /* 24px */
 }
 
 .m-h-lg {
-  margin: 0 var(--size-lg);
+  margin: 0 var(--size-lg); /* 32px */
 }
 
 /**
@@ -45,17 +45,17 @@
    */
 
 .m-v-xs {
-  margin: var(--size-xs) 0;
+  margin: var(--size-xs) 0; /* 8px */
 }
 
 .m-v-sm {
-  margin: var(--size-sm) 0;
+  margin: var(--size-sm) 0; /* 16px */
 }
 
 .m-v-md {
-  margin: var(--size-md) 0;
+  margin: var(--size-md) 0; /* 24px */
 }
 
 .m-v-lg {
-  margin: var(--size-lg) 0;
+  margin: var(--size-lg) 0; /* 32px */
 }

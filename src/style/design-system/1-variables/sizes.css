@@ -1,5 +1,6 @@
 :root {
   /* Paddings, margins, and other spacings */
+
   --size-xxs: 0.25rem; /* 4px */
   --size-xs: 0.5rem; /* 8px */
   --size-sm: 1rem; /* 16px */
@@ -27,6 +28,7 @@
   --line-height-lg: 1.8;
 
   /* Widths */
+  --width-xxs: 7.5rem; /*120px*/
   --width-xs: 12.5rem; /* 200px */
   --width-sm: 18.75rem; /* 300px */
   --width-md: 25rem; /* 400px */
@@ -35,6 +37,15 @@
   --width-xxl: 50rem; /* 800px */
   --width-xxxl: 75rem; /* 1200px */
 
+  /* Heights */
+  --height-xxs: 7.5rem; /*120px*/
+  --height-xs: 12.5rem; /* 200px */
+  --height-sm: 18.75rem; /* 300px */
+  --height-md: 25rem; /* 400px */
+  --height-lg: 31.25rem; /* 500px */
+  --height-xl: 37.5rem; /* 600px */
+  --height-xxl: 50rem; /* 800px */
+  --height-xxxl: 75rem; /* 1200px */
   /* Negative Widths */
   --negative-width-xs: -12.5rem; /* -200px */
   --negative-width-sm: -18.75rem; /* -300px */
@@ -49,6 +60,6 @@
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
   --radius-xl: 3rem;
-  --radius-xxl: 5rem;
-  --radius-2xl: 10rem;
+  --radius-2xl: 5rem;
+  --radius-3xl: 10rem;
 }

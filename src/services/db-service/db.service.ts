@@ -11,18 +11,20 @@ import {
   where,
   serverTimestamp,
   addDoc,
-  deleteDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import {
   GetSingleDbDocFn,
   GetDbDocsFn,
   UpdateDbDocFn,
   AddDbDocFn,
+  AddFriendToUser,
+  RemoveFriendToUser,
 } from "./db.service.types.ts";
 import { getAuth } from "firebase/auth";
 
 import config from "../../../config.ts";
-import { getLoggedInUser } from "../auth-service/auth.service.ts";
 
 const firebaseConfig = config.firebase;
 export const app = initializeApp(firebaseConfig);
@@ -85,69 +87,20 @@ export const updateDbDoc: UpdateDbDocFn = async (
   }
 };
 
-export const findUserByEmail = async (
-  email: string
-): Promise<{ id: string; name: string; email: string }> => {
-  const users = await getDbDocs("users", [["email", "==", email]]);
-  if (users.length === 0) throw new Error("The user does not exist.");
-
-  const user = users[0];
-
-  if (!user.name || !user.email) {
-    throw new Error("User data is incomplete.");
-  }
-
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-  };
-};
-
-export const getFriendsOfCurrentUser = async () => {
-  const user = getLoggedInUser();
-  if (!user) throw new Error("You are not logged in");
-
-  // 1. Added friends
-  const friendsCol = collection(db, "users", user.uid, "friends");
-  const snapshot = await getDocs(friendsCol);
-  const friends = snapshot.docs.map((doc) => doc.data());
-
-  // 2. Logged in user (me)
-  const self = {
-    id: user.uid,
-    name: user.displayName || user.email || "Anonim",
-    email: user.email,
-    status: "online",
-  };
-
-  // 3. Return logged in user + added friends
-  return [self, ...friends];
-};
-
-export const addFriendDoc = async (friend: {
-  id: string;
-  name: string;
-  email: string;
-}) => {
-  const user = getLoggedInUser();
-  if (!user) throw new Error("You are not logged in");
-
-  const friendRef = doc(
-    collection(db, "users", user.uid, "friends"),
-    friend.id
-  );
-  await setDoc(friendRef, {
-    id: friend.id,
-    name: friend.name,
-    email: friend.email,
-    status: "offline",
+export const addFriendToUser: AddFriendToUser = async (userId, friendId) => {
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, {
+    friends: arrayUnion(friendId),
+    timestamp: serverTimestamp(),
   });
 };
 
-export const removeFriendDoc = async (friendId: string) => {
-  const currentUser = getLoggedInUser();
-  if (!currentUser) throw new Error("You are not logged in");
-  const ref = doc(db, "users", currentUser.uid, "friends", friendId);
-  await deleteDoc(ref);
+export const removeFriendFromUser: RemoveFriendToUser = async (
+  userId,
+  friendId
+) => {
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, {
+    friends: arrayRemove(friendId),
+  });
 };

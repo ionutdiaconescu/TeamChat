@@ -36,10 +36,11 @@ body {
   display: block;
   font-size: var(--size-sm);
   color: var(--color-text-muted);
-  margin-top: 2px;
+  margin-top: var(--size-xxs);
 }
 .chat-user-info {
   background: var(--color-secondary);
+  gap: var(--size-xxs);
 }
 
 .sidebar {
@@ -47,7 +48,6 @@ body {
   width: var(--width-sm);
   background: var(--color-secondary);
   border-radius: var(--size-lg);
-
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -118,6 +118,7 @@ body {
 .friend {
   display: flex;
   align-items: center;
+  justify-content: space-around;
   gap: var(--size-xs);
   width: 100%;
   padding: var(--size-xs) var(--size-sm) var(--size-xs) var(--size-xs);
@@ -139,7 +140,7 @@ body {
   background-image: url("../../../public/user-icon.webp");
   background-size: cover;
   background-position: center;
-  border: 4px solid transparent;
+  border: 2px solid transparent;
   box-sizing: border-box;
   transition: border-color 0.2s;
 }
@@ -153,7 +154,7 @@ body {
 .friend-info .email {
   display: block;
   font-size: 0.9em;
-  max-width: 140px;
+  max-width: var(--width-xxs);
   color: var(--color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -181,15 +182,16 @@ body {
 }
 
 .add-friend-btn {
-  margin-top: 12px;
-  padding: 8px 14px;
-  background-color: var(--bg-color-orange);
-  color: white;
+  display: block;
+  margin-top: var(--size-xs);
+  margin-left: var(--size-xxs);
+  padding: var(--size-xxs) var(--size-xs);
+  background-color: var(--bg-color-white);
+  color: var(--color-text);
   font-weight: bold;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  display: block;
 }
 .add-friend-btn:hover {
   scale: 1.1;
@@ -209,21 +211,30 @@ body {
 }
 
 .modal {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 300px;
+  background: var(--color-secondary);
+  padding: var(--size-sm);
+  border-radius: var(--radius-md);
+  width: var(--width-sm);
+  color: var(--color-text-white);
+}
+.modal button {
+  background: var(--bg-color-white);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-weight: bold;
 }
 
 .modal input {
   width: 100%;
-  padding: 6px;
-  margin-bottom: 12px;
+  padding: var(--size-xs);
+  margin-bottom: var(--size-xs);
+  border-radius: var(--radius-md);
+  border: none;
 }
 
 .error {
-  color: red;
-  font-size: 0.9em;
+  color: var(--error-color);
+  font-size: var(--size-sm);
 }
 .chat-header {
   border-bottom: 1px solid var(--border-color-light);
@@ -268,23 +279,25 @@ body {
 }
 
 .message.right {
-  background-color: var(--bg-color-orange);
-  color: var(--color-text-white);
+  background-color: var(--bg-color-white);
+  color: var(--color-text);
   align-self: flex-end;
   border-top-right-radius: 0;
 }
 
 .message .user {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: var(--size-sm);
 }
 
 .message .timestamp {
-  color: var(--color-text-muted);
+  color: var(--color-text);
   font-size: var(--size-sm);
   align-self: flex-end;
 }
-
+.message.left .timestamp {
+  color: var(--color-text-white);
+}
 .message-send-bar {
   border-radius: var(--size-md);
   background-color: var(--color-secondary);
@@ -305,18 +318,78 @@ body {
 }
 
 .message-input::placeholder {
-  color: var(--bg-color-orange);
+  color: var(--bg-color-white);
   opacity: 0.7;
 }
-.emoji {
-  color: var(--bg-color-orange);
+.emoji-icon {
+  color: var(--color-primary);
   width: var(--size-lg);
   height: var(--size-lg);
   cursor: pointer;
   translate: var(--size-xl);
 }
+.emoji-selector-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--size-xs);
+  transform: translateY(-50%);
+  color: var(--color-primary);
+  width: var(--size-lg);
+  height: var(--size-lg);
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.search-emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.search-emoji input {
+  border-radius: var(--radius-md);
+  margin: var(--size-xxs);
+  padding: var(--size-xxs);
+  width: 80%;
+  border: 1px solid var(--color-text-muted);
+}
+.input-with-emoji {
+  position: relative;
+  width: 100%;
+}
+.emoji-selector {
+  width: var(--width-sm);
+  height: var(--height-sm);
+  border-radius: var(--radius-md);
+  background: var(--bg-color-white);
+  display: none;
+}
+.emoji-selector.active {
+  display: block;
+}
+.emoji-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+  gap: var(--size-xs);
+  padding: var(--size-xs);
+  list-style: none;
+  max-height: var(--height-xs);
+  overflow-y: auto;
+}
+.emoji-list li {
+  font-size: var(--size-md);
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-radius: var(--size-xs);
+}
+.emoji-list li:hover {
+  background: var(--color-secondary-hover, #eee);
+}
 .add-file-icon {
-  color: var(--bg-color-orange);
+  color: var(--color-primary);
   width: var(--size-lg);
   height: var(--size-lg);
   cursor: pointer;
@@ -325,7 +398,7 @@ body {
 .send-button {
   border: none;
   padding: var(--size-xs);
-  background: var(--bg-color-orange);
+  background: var(--color-primary);
   border-radius: 50%;
   cursor: pointer;
 }

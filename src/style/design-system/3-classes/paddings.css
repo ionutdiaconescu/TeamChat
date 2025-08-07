@@ -3,17 +3,17 @@
  */
 
 .p-xs {
-  padding: var(--size-xs);
+  padding: var(--size-xs); /* 8px */
 }
 
 .p-sm {
-  padding: var(--size-sm);
+  padding: var(--size-sm); /* 16px */
 }
 
 .p-md {
-  padding: var(--size-md);
+  padding: var(--size-md); /* 24px */
 }
 
 .p-lg {
-  padding: var(--size-lg);
+  padding: var(--size-lg); /* 32px */
 }

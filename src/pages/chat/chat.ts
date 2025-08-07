@@ -13,14 +13,17 @@ import {
   getLoggedInUser,
   onUserAuthStateChanged,
 } from "./../../services/auth-service/auth.service";
-
+import { getFriendsOfCurrentUser } from "../../services/friends-service/friends.service";
 import {
-  addFriendDoc,
-  findUserByEmail,
-  getFriendsOfCurrentUser,
-  removeFriendDoc,
-} from "../../services/db-service/db.service";
-
+  addFriendByEmail,
+  removeFriendById,
+} from "../../services/user-services/user.service";
+import {
+  fetchEmojis,
+  initEmojiSelector,
+  emojiSearch,
+  closeEmojiOnOutsideClick,
+} from "./emoji";
 // --- DOM ELEMENTS ---
 const messagesContainer = document.querySelector(".chat-messages")!;
 const chatUserName = document.getElementById("chatUserName")!;
@@ -33,6 +36,12 @@ const messageInput = document.getElementById(
 const searchInput = document.querySelector<HTMLInputElement>(
   ".friend-search-input"
 );
+const emojiSearchInput = document.querySelector<HTMLInputElement>(
+  ".search-emoji input"
+);
+const emojiSelectorIcon = document.getElementById("emojiSelectorIcon");
+const emojiSelector = document.getElementById("emojiSelector");
+const emojiList = document.getElementById("emojiList");
 
 let wsSocket: Socket | null = null;
 let messages: ChatMessage[] = [];
@@ -74,20 +83,24 @@ async function initializePage() {
 async function loadFriends(searchTerm: string = "") {
   const friends = await getFriendsOfCurrentUser();
   friendList.innerHTML = "";
+  const user = getLoggedInUser();
+  const onlyFriends = friends.filter((friend: any) => friend.id !== user?.uid);
+
   const filtered = searchTerm
-    ? friends.filter(
+    ? onlyFriends.filter(
         (friend: any) =>
           friend.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           friend.email.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : friends;
+    : onlyFriends;
+
   filtered.forEach((friend: any) => {
     const friendItem = createFriendItem(
       friend.name,
       friend.email,
       friend.status || "offline",
       async () => {
-        await removeFriendDoc(friend.id);
+        await removeFriendById(friend.id);
         await loadFriends(searchTerm);
       },
       friend.id
@@ -124,12 +137,7 @@ function renderMessages() {
 // --- MODALS ---
 function openAddFriendModal() {
   const modal = createAddFriendModal(async (email) => {
-    const user = await findUserByEmail(email);
-    await addFriendDoc({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    });
+    await addFriendByEmail(email);
     await loadFriends();
   });
   document.body.appendChild(modal);
@@ -207,4 +215,25 @@ function debounce<T extends (...args: any[]) => void>(fn: T, delay = 300) {
     clearTimeout(timeout);
     timeout = setTimeout(() => fn(...args), delay);
   };
+}
+
+// --- Emoji ---
+if (
+  emojiSelectorIcon &&
+  emojiSelector &&
+  emojiList &&
+  messageInput &&
+  emojiSearchInput
+) {
+  fetchEmojis(emojiList, messageInput).then((allEmojis) => {
+    initEmojiSelector(
+      emojiSelectorIcon,
+      emojiSelector,
+      allEmojis,
+      emojiList,
+      messageInput
+    );
+    emojiSearch(emojiSearchInput, emojiList, allEmojis, messageInput);
+    closeEmojiOnOutsideClick(emojiSelector, emojiSelectorIcon);
+  });
 }
