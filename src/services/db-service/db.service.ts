@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp } from 'firebase/app';
 import {
   getFirestore,
   doc,
@@ -11,20 +11,20 @@ import {
   where,
   serverTimestamp,
   addDoc,
-  arrayUnion,
   arrayRemove,
-} from "firebase/firestore";
+  arrayUnion,
+} from 'firebase/firestore';
 import {
   GetSingleDbDocFn,
   GetDbDocsFn,
   UpdateDbDocFn,
   AddDbDocFn,
-  AddFriendToUser,
-  RemoveFriendToUser,
-} from "./db.service.types.ts";
-import { getAuth } from "firebase/auth";
+  AddToArrayFieldFn,
+  RemoveFromArrayFieldFn,
+} from './db.service.types.ts';
+import { getAuth } from 'firebase/auth';
 
-import config from "../../../config.ts";
+import config from '../../../config.ts';
 
 const firebaseConfig = config.firebase;
 export const app = initializeApp(firebaseConfig);
@@ -87,20 +87,27 @@ export const updateDbDoc: UpdateDbDocFn = async (
   }
 };
 
-export const addFriendToUser: AddFriendToUser = async (userId, friendId) => {
-  const userRef = doc(db, "users", userId);
-  await updateDoc(userRef, {
-    friends: arrayUnion(friendId),
+export const addToArrayField: AddToArrayFieldFn = async (
+  collection,
+  id,
+  arrayField,
+  itemToAdd
+) => {
+  const docRef = doc(db, collection, id);
+  await updateDoc(docRef, {
+    [arrayField]: arrayUnion(itemToAdd),
     timestamp: serverTimestamp(),
   });
 };
 
-export const removeFriendFromUser: RemoveFriendToUser = async (
-  userId,
-  friendId
+export const removeFromArrayField: RemoveFromArrayFieldFn = async (
+  collection,
+  id,
+  arrayField,
+  itemToDelete
 ) => {
-  const userRef = doc(db, "users", userId);
-  await updateDoc(userRef, {
-    friends: arrayRemove(friendId),
+  const docRef = doc(db, collection, id);
+  await updateDoc(docRef, {
+    [arrayField]: arrayRemove(itemToDelete),
   });
 };

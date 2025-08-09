@@ -1,4 +1,4 @@
-import { WhereFilterOp } from "firebase/firestore";
+import { WhereFilterOp } from 'firebase/firestore';
 
 /**firebase single doc return interface */
 export interface GetSingleDbDocFn {
@@ -7,6 +7,11 @@ export interface GetSingleDbDocFn {
 
 /** firebase list doc return interface */
 export type FirestoreWhereCondition = [string, WhereFilterOp, any];
+
+export interface FirestoreDocument {
+  id: string;
+  [key: string]: any;
+}
 
 export interface GetDbDocsFn {
   (
@@ -27,17 +32,16 @@ export interface AddDbDocFn {
   (collectionName: string, data: Record<string, any>): Promise<string>;
 }
 
-export interface FirestoreDocument {
-  id: string;
-  [key: string]: any;
-}
-
-export type AddFriendToUser = (
-  userId: string,
-  friendId: string
+export type AddToArrayFieldFn = (
+  collection: string,
+  id: string,
+  arrayField: string,
+  itemToAdd: any
 ) => Promise<void>;
 
-export type RemoveFriendToUser = (
-  userId: string,
-  friendId: string
+export type RemoveFromArrayFieldFn = (
+  collection: string,
+  id: string,
+  arrayField: string,
+  itemToDelete: any
 ) => Promise<void>;

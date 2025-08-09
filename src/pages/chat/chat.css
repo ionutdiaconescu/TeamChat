@@ -15,6 +15,71 @@ body {
   overflow: hidden;
 }
 
+.modal button {
+  background: var(--bg-color-white);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-weight: bold;
+  flex: 1;
+  padding: var(--size-xs);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.remove-friend-modal {
+  width: var(--width-sm);
+  max-width: 90vw;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: var(--size-xs);
+  margin-bottom: var(--size-sm);
+}
+
+.warning-icon {
+  font-size: var(--size-lg);
+  color: var(--error-color);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: var(--size-md);
+  color: var(--color-text-white);
+}
+
+.modal-body {
+  margin-bottom: var(--size-md);
+}
+
+.modal-body p {
+  margin: 0 0 var(--size-xs) 0;
+  color: var(--color-text-white);
+  line-height: 1.4;
+}
+
+.modal-subtitle {
+  font-size: var(--size-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.cancel-remove {
+  background: var(--color-text-muted);
+  color: var(--color-text-white);
+}
+
+.confirm-remove {
+  background: var(--error-color);
+  color: var(--color-text-white);
+}
+
+.confirm-remove:hover {
+  background: var(--error-color);
+}
+
 .chat-layout {
   height: 80%;
   font-family: Arial, sans-serif;
@@ -171,14 +236,23 @@ body {
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 16px;
   color: var(--error-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--size-xxs);
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .remove-friend-btn:hover {
-  color: var(--error-color);
-  scale: 1.1;
-  transition: 0.3s;
+  background-color: rgba(255, 0, 0, 0.1);
+  transform: scale(1.1);
+}
+
+.remove-friend-btn ion-icon {
+  font-size: 16px;
 }
 
 .add-friend-btn {
@@ -217,11 +291,111 @@ body {
   width: var(--width-sm);
   color: var(--color-text-white);
 }
+
+/* Stiluri pentru modalul îmbunătățit de adăugare prieteni */
+.add-friend-modal {
+  width: var(--width-md);
+  max-width: 90vw;
+}
+
+.search-container {
+  position: relative;
+  margin-bottom: var(--size-sm);
+}
+
+.search-container input {
+  width: 100%;
+  padding: var(--size-xs);
+  margin-bottom: var(--size-xs);
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: var(--size-sm);
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-color-white);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  color: var(--color-text);
+}
+
+.search-results.hidden {
+  display: none;
+}
+
+.search-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--size-xs);
+  padding: var(--size-xxs) var(--size-xs);
+  border: 2px solid var(--border-color-light);
+  transition: background-color 0.2s;
+  background-color: var(--color-secondary);
+}
+
+.search-result-item:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: var(--size-sm);
+  color: var(--color-text-white);
+}
+
+.user-email {
+  font-size: var(--size-sm);
+  color: var(--color-text-muted);
+}
+
+.add-user-btn {
+  background: var(--color-primary);
+  color: var(--color-text-white);
+  border: none;
+  padding: var(--size-xxs) var(--size-xs);
+  border-radius: var(--radius-sm);
+  font-size: var(--size-xs);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  max-width: var(--size-3xl);
+}
+
+.no-results {
+  padding: var(--size-sm);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--size-xs);
+  margin-top: var(--size-sm);
+}
+
 .modal button {
   background: var(--bg-color-white);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--color-text);
   font-weight: bold;
+  flex: 1;
 }
 
 .modal input {

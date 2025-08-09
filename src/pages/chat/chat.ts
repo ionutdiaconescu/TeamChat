@@ -1,4 +1,8 @@
 //-------IMPORTS-------
+import {
+  filterUsersBySearchTerm,
+  preloadUsersCache,
+} from "../../services/user-service/user.service";
 import { Socket } from "socket.io-client";
 import {
   createAddFriendButton,
@@ -13,17 +17,19 @@ import {
   getLoggedInUser,
   onUserAuthStateChanged,
 } from "./../../services/auth-service/auth.service";
-import { getFriendsOfCurrentUser } from "../../services/friends-service/friends.service";
 import {
   addFriendByEmail,
-  removeFriendById,
-} from "../../services/user-services/user.service";
+  getFriendsOfCurrentUser,
+  removeFriendFromUser,
+} from "./../../services/friends-service/friends.service";
 import {
   fetchEmojis,
   initEmojiSelector,
   emojiSearch,
   closeEmojiOnOutsideClick,
 } from "./emoji";
+import { User } from "./../../services/user-service/user.service.types";
+
 // --- DOM ELEMENTS ---
 const messagesContainer = document.querySelector(".chat-messages")!;
 const chatUserName = document.getElementById("chatUserName")!;
@@ -45,6 +51,8 @@ const emojiList = document.getElementById("emojiList");
 
 let wsSocket: Socket | null = null;
 let messages: ChatMessage[] = [];
+
+let friends: User[] = [];
 
 // --- INIT & AUTH ---
 onUserAuthStateChanged((user) => {
@@ -68,46 +76,50 @@ async function initializePage() {
     chatUserEmail.textContent = user.email || "";
   }
 
+  // Pre-load users cache for better search performance
+  preloadUsersCache();
+
   connectToWsServer();
   await loadFriends();
   sendBtn.addEventListener("click", onSendMessage);
   if (searchInput) {
     searchInput.addEventListener(
       "input",
-      debounce(() => loadFriends(searchInput.value), 350)
+      debounce(async () => {
+        const filteredFriends = await filterUsersBySearchTerm(
+          friends,
+          searchInput.value
+        );
+        loadFriends(filteredFriends);
+      }, 300)
     );
   }
 }
 
 // --- UI FUNCTIONS ---
-async function loadFriends(searchTerm: string = "") {
-  const friends = await getFriendsOfCurrentUser();
+async function loadFriends(filteredFriends?: User[]) {
+  friends = filteredFriends || ((await getFriendsOfCurrentUser()) as User[]);
   friendList.innerHTML = "";
-  const user = getLoggedInUser();
-  const onlyFriends = friends.filter((friend: any) => friend.id !== user?.uid);
 
-  const filtered = searchTerm
-    ? onlyFriends.filter(
-        (friend: any) =>
-          friend.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          friend.email.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : onlyFriends;
-
-  filtered.forEach((friend: any) => {
+  friends.forEach((friend: any) => {
     const friendItem = createFriendItem(
       friend.name,
       friend.email,
       friend.status || "offline",
-      async () => {
-        await removeFriendById(friend.id);
-        await loadFriends(searchTerm);
-      },
+      () => removeFriend(friend),
       friend.id
     );
     friendList.appendChild(friendItem);
   });
   friendList.appendChild(createAddFriendButton(openAddFriendModal));
+}
+
+async function removeFriend(friend: User) {
+  const user = getLoggedInUser();
+  if (!user) throw new Error("You are not logged in");
+
+  await removeFriendFromUser(user.uid, friend.id);
+  await loadFriends();
 }
 
 function renderMessages() {

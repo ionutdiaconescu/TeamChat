@@ -1,5 +1,7 @@
 import { getLoggedInUser } from "../../services/auth-service/auth.service";
 import { createDomElement } from "../../services/dom.service";
+import { searchUsersInDatabase } from "../../services/user-service/user.service";
+import { User } from "../../services/user-service/user.service.types";
 export const createMessageBubble = (
   message: string,
   time: string,
@@ -53,17 +55,28 @@ export const createFriendItem = (
   ]);
 
   //remove friend button
-  const removeBtn = createDomElement("button", "remove-friend-btn", "❌");
+  const removeBtn = createDomElement("button", "remove-friend-btn", "");
   removeBtn.title = "Remove friend";
+  removeBtn.innerHTML = '<ion-icon name="close-outline"></ion-icon>';
 
   if (friendId === getLoggedInUser()?.uid) {
     removeBtn.style.display = "none";
   } else {
     removeBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (confirm(`Sigur vrei să ștergi prietenul ${name}?`)) {
-        onRemove();
-      }
+
+      // Creează modal de confirmare în loc de alert
+      const confirmModal = createRemoveFriendModal(
+        name,
+        () => {
+          onRemove();
+          document.body.removeChild(confirmModal);
+        },
+        () => {
+          document.body.removeChild(confirmModal);
+        }
+      );
+      document.body.appendChild(confirmModal);
     });
   }
 
@@ -93,18 +106,112 @@ export const createAddFriendModal = (
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
   overlay.innerHTML = `
-    <div class="modal">
+    <div class="modal add-friend-modal">
       <h3>Add friend</h3>
+      <div class="search-container">
+        <input type="text" id="search-users-input" placeholder="Search users by name or email..." />
+        <div id="search-results" class="search-results hidden"></div>
+      </div>
+      <p>Or add by email:</p>
       <input type="email" id="new-friend-email" placeholder="Friend email" />
-      <button id="confirm-add">Add</button>
-      <button id="cancel-add">Cancel</button>
+      <div class="modal-actions">
+        <button id="confirm-add">Add</button>
+        <button id="cancel-add">Cancel</button>
+      </div>
       <p id="add-error" class="error"></p>
     </div>
   `;
 
   const emailInput =
     overlay.querySelector<HTMLInputElement>("#new-friend-email")!;
+  const searchInput = overlay.querySelector<HTMLInputElement>(
+    "#search-users-input"
+  )!;
+  const searchResults = overlay.querySelector<HTMLElement>("#search-results")!;
   const errBox = overlay.querySelector<HTMLElement>("#add-error")!;
+
+  // Funcția pentru căutarea de utilizatori
+  const handleUserSearch = async (searchTerm: string) => {
+    try {
+      if (!searchTerm.trim()) {
+        searchResults.classList.add("hidden");
+        searchResults.innerHTML = "";
+        return;
+      }
+
+      const users = await searchUsersInDatabase(searchTerm);
+      displaySearchResults(users);
+    } catch (error: any) {
+      console.error("Error searching users:", error);
+      errBox.textContent = error.message || "Error searching users";
+    }
+  };
+
+  // Function for displaying search results
+  const displaySearchResults = (users: User[]) => {
+    if (users.length === 0) {
+      searchResults.innerHTML = '<div class="no-results">No users found</div>';
+    } else {
+      searchResults.innerHTML = users
+        .slice(0, 5) // Limităm la 5 rezultate
+        .map(
+          (user) => `
+          <div class="search-result-item" data-user-id="${user.id}" data-user-email="${user.email}">
+            <div class="user-info">
+              <span class="user-name">${user.name}</span>
+              <span class="user-email">${user.email}</span>
+            </div>
+            <button class="add-user-btn" data-user-id="${user.id}">Add</button>
+          </div>
+        `
+        )
+        .join("");
+
+      // We add event listeners for the add buttons
+      searchResults.querySelectorAll(".add-user-btn").forEach((btn) => {
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const userId = (e.target as HTMLElement).dataset.userId;
+          const userItem = searchResults.querySelector(
+            `[data-user-id="${userId}"]`
+          ) as HTMLElement;
+          const userEmail = userItem?.dataset.userEmail;
+
+          if (userEmail) {
+            try {
+              await onConfirm(userEmail);
+              overlay.remove();
+            } catch (error: any) {
+              errBox.textContent = error.message;
+            }
+          }
+        });
+      });
+    }
+
+    searchResults.classList.remove("hidden");
+  };
+
+  // Event listener for debouncing search
+  let searchTimeout: NodeJS.Timeout;
+  searchInput.addEventListener("input", (e) => {
+    const target = e.target as HTMLInputElement;
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    searchTimeout = setTimeout(() => {
+      handleUserSearch(target.value);
+    }, 300);
+  });
+
+  // Event listener for clicks outside of results
+  overlay.addEventListener("click", (e) => {
+    if (!searchResults.contains(e.target as Node) && e.target !== searchInput) {
+      searchResults.classList.add("hidden");
+    }
+  });
 
   overlay.querySelector("#cancel-add")!.addEventListener("click", () => {
     overlay.remove();
@@ -118,6 +225,52 @@ export const createAddFriendModal = (
       overlay.remove();
     } catch (e: any) {
       errBox.textContent = e.message;
+    }
+  });
+
+  return overlay;
+};
+
+export const createRemoveFriendModal = (
+  friendName: string,
+  onConfirm: () => void,
+  onCancel?: () => void
+): HTMLElement => {
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.innerHTML = `
+    <div class="modal remove-friend-modal">
+      <div class="modal-header">
+        <ion-icon name="warning-outline" class="warning-icon"></ion-icon>
+        <h3>Remove Friend</h3>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to remove <strong>${friendName}</strong> from your friends list?</p>
+        <p class="modal-subtitle">This action cannot be undone.</p>
+      </div>
+      <div class="modal-actions">
+        <button id="cancel-remove" class="cancel-remove">Cancel</button>
+        <button id="confirm-remove" class="confirm-remove">Remove Friend</button>
+      </div>
+    </div>
+  `;
+
+  // Event listeners
+  overlay.querySelector("#cancel-remove")!.addEventListener("click", () => {
+    overlay.remove();
+    if (onCancel) onCancel();
+  });
+
+  overlay.querySelector("#confirm-remove")!.addEventListener("click", () => {
+    onConfirm();
+    overlay.remove();
+  });
+
+  // Close modal on click on overlay
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+      if (onCancel) onCancel();
     }
   });
 
