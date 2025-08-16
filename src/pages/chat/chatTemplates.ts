@@ -1,3 +1,4 @@
+import { createDebouncedFunction } from "../../common/utils";
 import { getLoggedInUser } from "../../services/auth-service/auth.service";
 import { createDomElement } from "../../services/dom.service";
 import { searchUsersInDatabase } from "../../services/user-service/user.service";
@@ -65,7 +66,6 @@ export const createFriendItem = (
     removeBtn.addEventListener("click", (e) => {
       e.stopPropagation();
 
-      // Creează modal de confirmare în loc de alert
       const confirmModal = createRemoveFriendModal(
         name,
         () => {
@@ -106,24 +106,20 @@ export const createAddFriendModal = (
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
   overlay.innerHTML = `
-    <div class="modal add-friend-modal">
-      <h3>Add friend</h3>
-      <div class="search-container">
-        <input type="text" id="search-users-input" placeholder="Search users by name or email..." />
-        <div id="search-results" class="search-results hidden"></div>
+      <div class="modal add-friend-modal">
+        <h3>Add friend</h3>
+        <div class="search-container">
+          <input type="text" id="search-users-input" placeholder="Search users by name or email..." />
+          <div id="search-results" class="search-results hidden"></div>
+        </div>
+        <div class="modal-actions">
+          <button id="cancel-add">Cancel</button>
+        </div>
+        <p id="add-error" class="error"></p>
       </div>
-      <p>Or add by email:</p>
-      <input type="email" id="new-friend-email" placeholder="Friend email" />
-      <div class="modal-actions">
-        <button id="confirm-add">Add</button>
-        <button id="cancel-add">Cancel</button>
-      </div>
-      <p id="add-error" class="error"></p>
-    </div>
-  `;
+    `;
 
-  const emailInput =
-    overlay.querySelector<HTMLInputElement>("#new-friend-email")!;
+  // Nu mai există input pentru email direct
   const searchInput = overlay.querySelector<HTMLInputElement>(
     "#search-users-input"
   )!;
@@ -193,18 +189,14 @@ export const createAddFriendModal = (
   };
 
   // Event listener for debouncing search
-  let searchTimeout: NodeJS.Timeout;
-  searchInput.addEventListener("input", (e) => {
-    const target = e.target as HTMLInputElement;
-
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    searchTimeout = setTimeout(() => {
-      handleUserSearch(target.value);
-    }, 300);
-  });
+  searchInput.addEventListener(
+    "input",
+    createDebouncedFunction((e: Event) => {
+      const input = e.target as HTMLInputElement;
+      console.log(input.value);
+      handleUserSearch(input.value);
+    })
+  );
 
   // Event listener for clicks outside of results
   overlay.addEventListener("click", (e) => {
@@ -216,16 +208,6 @@ export const createAddFriendModal = (
   overlay.querySelector("#cancel-add")!.addEventListener("click", () => {
     overlay.remove();
     if (onCancel) onCancel();
-  });
-
-  overlay.querySelector("#confirm-add")!.addEventListener("click", async () => {
-    errBox.textContent = "";
-    try {
-      await onConfirm(emailInput.value);
-      overlay.remove();
-    } catch (e: any) {
-      errBox.textContent = e.message;
-    }
   });
 
   return overlay;

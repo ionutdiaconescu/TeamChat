@@ -1,7 +1,7 @@
 //-------IMPORTS-------
 import {
   filterUsersBySearchTerm,
-  preloadUsersCache,
+  // preloadUsersCache,
 } from "../../services/user-service/user.service";
 import { Socket } from "socket.io-client";
 import {
@@ -76,8 +76,12 @@ async function initializePage() {
     chatUserEmail.textContent = user.email || "";
   }
 
+  /*
+    TO BE AWARE: THIS CREATES A PERFECT OPPORTUNITY FOR DENIAL OF
+    SERVICE ATTACKS (DoS).
+  */
   // Pre-load users cache for better search performance
-  preloadUsersCache();
+  // preloadUsersCache();
 
   connectToWsServer();
   await loadFriends();

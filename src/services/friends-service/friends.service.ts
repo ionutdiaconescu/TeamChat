@@ -8,7 +8,7 @@ import {
 import { AddFriendToUser, RemoveFriendToUser } from "./friends.service.types";
 import {
   getAllUsers,
-  invalidateUsersCache,
+  // invalidateUsersCache,
 } from "../user-service/user.service";
 
 export const getFriendsOfCurrentUser = async () => {
@@ -62,5 +62,5 @@ export const addFriendByEmail = async (email: string) => {
   await addFriendToUser(user.uid, friend.id);
 
   // Invalidate cache to reflect change
-  invalidateUsersCache();
+  // invalidateUsersCache();
 };
