@@ -20,8 +20,8 @@
     <div class="chat-layout m-xs flex gap-sm">
       <!-- Sidebar friends -->
       <aside class="sidebar flex flex-column">
+        <button class="open-close-friendList"></button>
         <div class="sidebar-title flex flex-center">Friends</div>
-
         <!-- Search friends -->
         <div class="friend-search">
           <div class="search-input-wrapper">
@@ -69,33 +69,32 @@
           <ul id="emojiList" class="emoji-list"></ul>
         </li>
         <!-- Send message bar -->
-        <div class="message-send-bar flex flex-center justify-center m-sm p-sm">
-          <div class="input-with-emoji">
-            <span id="emojiSelectorIcon" class="emoji-selector-icon"
-              ><ion-icon
-                class="emoji-selector-icon"
-                name="happy-outline"
-              ></ion-icon
-            ></span>
-            <input
-              type="text"
-              id="messageInput"
-              class="message-input flex-grow"
-              placeholder="Write a message..."
-            />
+        <div class="message-send-bar">
+          <div class="message-send-bar-inner">
+            <div class="input-with-emoji">
+              <span id="emojiSelectorIcon" class="emoji-selector-icon">
+                <ion-icon
+                  class="emoji-selector-icon"
+                  name="happy-outline"
+                ></ion-icon>
+              </span>
+              <div class="textarea-container">
+                <textarea
+                  id="messageInput"
+                  class="message-input flex-grow"
+                  placeholder="Write a message..."
+                  rows="1"
+                ></textarea>
+              </div>
+            </div>
+            <button id="sendMessageBtn" class="flex flex-center send-button">
+              <img
+                class="send-icon"
+                src="../../../public/send-icon.webp"
+                alt="send-icon"
+              />
+            </button>
           </div>
-
-          <ion-icon
-            class="add-file-icon"
-            name="document-attach-outline"
-          ></ion-icon>
-          <button id="sendMessageBtn" class="flex flex-center send-button">
-            <img
-              class="send-icon"
-              src="../../../public/send-icon.webp"
-              alt="send-icon"
-            />
-          </button>
         </div>
       </main>
     </div>

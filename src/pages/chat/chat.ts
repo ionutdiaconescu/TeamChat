@@ -1,8 +1,5 @@
 //-------IMPORTS-------
-import {
-  filterUsersBySearchTerm,
-  // preloadUsersCache,
-} from "../../services/user-service/user.service";
+import { filterUsersBySearchTerm } from "../../services/user-service/user.service";
 import { Socket } from "socket.io-client";
 import {
   createAddFriendButton,
@@ -35,6 +32,7 @@ const messagesContainer = document.querySelector(".chat-messages")!;
 const chatUserName = document.getElementById("chatUserName")!;
 const chatUserEmail = document.getElementById("chatUserEmail")!;
 const friendList = document.querySelector(".friend-list")!;
+const openCloseFriendList = document.querySelector(".open-close-friendList");
 const sendBtn = document.getElementById("sendMessageBtn")!;
 const messageInput = document.getElementById(
   "messageInput"
@@ -48,7 +46,15 @@ const emojiSearchInput = document.querySelector<HTMLInputElement>(
 const emojiSelectorIcon = document.getElementById("emojiSelectorIcon");
 const emojiSelector = document.getElementById("emojiSelector");
 const emojiList = document.getElementById("emojiList");
-
+const textarea = document.querySelector(
+  ".message-input"
+) as HTMLTextAreaElement | null;
+if (textarea) {
+  textarea.addEventListener("input", function (this: HTMLTextAreaElement) {
+    this.style.height = "auto";
+    this.style.height = this.scrollHeight + "px";
+  });
+}
 let wsSocket: Socket | null = null;
 let messages: ChatMessage[] = [];
 
@@ -76,36 +82,23 @@ async function initializePage() {
     chatUserEmail.textContent = user.email || "";
   }
 
-  /*
-    TO BE AWARE: THIS CREATES A PERFECT OPPORTUNITY FOR DENIAL OF
-    SERVICE ATTACKS (DoS).
-  */
-  // Pre-load users cache for better search performance
-  // preloadUsersCache();
-
   connectToWsServer();
-  await loadFriends();
+  friends = (await getFriendsOfCurrentUser()) as User[];
+  renderFriendsList();
+
   sendBtn.addEventListener("click", onSendMessage);
-  if (searchInput) {
-    searchInput.addEventListener(
-      "input",
-      debounce(async () => {
-        const filteredFriends = await filterUsersBySearchTerm(
-          friends,
-          searchInput.value
-        );
-        loadFriends(filteredFriends);
-      }, 300)
-    );
-  }
+  searchInput!.addEventListener(
+    "input",
+    debounce(renderFilteredFriendsList, 300)
+  );
 }
 
 // --- UI FUNCTIONS ---
-async function loadFriends(filteredFriends?: User[]) {
-  friends = filteredFriends || ((await getFriendsOfCurrentUser()) as User[]);
+function renderFriendsList(filteredFriends?: User[]) {
+  const renderedFriends = filteredFriends || friends;
   friendList.innerHTML = "";
 
-  friends.forEach((friend: any) => {
+  renderedFriends.forEach((friend: any) => {
     const friendItem = createFriendItem(
       friend.name,
       friend.email,
@@ -115,7 +108,13 @@ async function loadFriends(filteredFriends?: User[]) {
     );
     friendList.appendChild(friendItem);
   });
+
   friendList.appendChild(createAddFriendButton(openAddFriendModal));
+}
+
+function renderFilteredFriendsList() {
+  const filteredFriends = filterUsersBySearchTerm(friends, searchInput!.value);
+  renderFriendsList(filteredFriends);
 }
 
 async function removeFriend(friend: User) {
@@ -123,7 +122,8 @@ async function removeFriend(friend: User) {
   if (!user) throw new Error("You are not logged in");
 
   await removeFriendFromUser(user.uid, friend.id);
-  await loadFriends();
+  friends = friends.filter((f) => f.id !== friend.id);
+  renderFilteredFriendsList();
 }
 
 function renderMessages() {
@@ -150,11 +150,17 @@ function renderMessages() {
   }
 }
 
+//--open-close fiend list mobile-only
+openCloseFriendList?.addEventListener("click", function () {
+  document.body.classList.toggle("friend-list-open");
+});
+
 // --- MODALS ---
 function openAddFriendModal() {
   const modal = createAddFriendModal(async (email) => {
-    await addFriendByEmail(email);
-    await loadFriends();
+    const newlyAddedFriend = await addFriendByEmail(email);
+    friends.push(newlyAddedFriend);
+    renderFilteredFriendsList();
   });
   document.body.appendChild(modal);
 }

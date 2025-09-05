@@ -14,11 +14,12 @@ body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
+  font-family: var(--default-font);
 }
 .about-container {
   max-width: var(--width-xxl);
   height: 100%;
-  margin: var(--size-xl) auto 0 auto;
+  margin: var(--size-xl) auto var(--size-2xl) auto;
   background: var(--color-secondary);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-inset-md);

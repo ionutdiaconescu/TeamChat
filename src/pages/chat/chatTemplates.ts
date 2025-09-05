@@ -89,7 +89,7 @@ export const createFriendItem = (
 };
 export const createAddFriendButton = (onClick: () => void): HTMLElement => {
   const btn = document.createElement("button");
-  btn.className = "add-friend-btn";
+  btn.className = "btn btn-primary add-friend-btn";
   btn.textContent = "Add Friend";
   btn.type = "button";
   btn.addEventListener("click", (e) => {

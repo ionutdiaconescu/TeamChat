@@ -5,11 +5,11 @@ import {
   getSingleDbDoc,
   removeFromArrayField,
 } from "../db-service/db.service";
-import { AddFriendToUser, RemoveFriendToUser } from "./friends.service.types";
+import { RemoveFriendToUser } from "./friends.service.types";
 import {
   getAllUsers,
-  // invalidateUsersCache,
 } from "../user-service/user.service";
+import { User } from '../user-service/user.service.types';
 
 export const getFriendsOfCurrentUser = async () => {
   const user = getLoggedInUser();
@@ -30,10 +30,6 @@ export const getFriendsOfCurrentUser = async () => {
   return friends;
 };
 
-export const addFriendToUser: AddFriendToUser = async (userId, friendId) => {
-  await addToArrayField("users", userId, "friends", friendId);
-};
-
 export const removeFriendFromUser: RemoveFriendToUser = async (
   userId,
   friendId
@@ -41,7 +37,7 @@ export const removeFriendFromUser: RemoveFriendToUser = async (
   await removeFromArrayField("users", userId, "friends", friendId);
 };
 
-export const addFriendByEmail = async (email: string) => {
+export const addFriendByEmail = async (email: string): Promise<User> => {
   const user = getLoggedInUser();
   if (!user) throw new Error("You are not logged in");
   if (user.email === email) throw new Error("You can't add yourself ");
@@ -59,8 +55,6 @@ export const addFriendByEmail = async (email: string) => {
   }
 
   //Add the friend id in the friends collection
-  await addFriendToUser(user.uid, friend.id);
-
-  // Invalidate cache to reflect change
-  // invalidateUsersCache();
+  await addToArrayField("users", user.uid, "friends", friend.id);
+  return friend;
 };
