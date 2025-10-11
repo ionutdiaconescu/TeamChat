@@ -3,70 +3,100 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./index.css" />
-    <script
-      type="module"
-      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
-    ></script>
-    <script
-      nomodule
-      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
-    ></script>
-    <script type="module" src="./index.ts"></script>
     <title>TeamChat</title>
+    <meta
+      name="description"
+      content="TeamChat - your number one chatting app. Keep in touch with any of your friends with ease."
+    />
+    <link rel="stylesheet" href="./index.css" />
+    <link rel="stylesheet" href="./src/style/design-system/spinner.css" />
+    <script type="module" src="./index.ts"></script>
   </head>
-  <body class="flex flex-center auth-page">
-    <form class="flex flex-column flex-center auth-form">
-      <h2>Login</h2>
-      <p class="message-box"></p>
-      <div class="input-row">
-        <label for="email">Email</label>
-        <span class="icon"><ion-icon name="mail"></ion-icon></span>
-        <input
-          id="email"
-          type="email"
-          name="mail"
-          autocomplete="email"
-          aria-errormessage="login-email-error"
-          required
-        />
-      </div>
-      <p class="message-box" id="login-email-error" role="alert"></p>
-      <div class="input-row">
-        <label for="password">Password</label>
-        <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
-        <input
-          id="password"
-          type="password"
-          name="password"
-          autocomplete="current-password"
-          aria-errormessage="login-password-error"
-          required
-        />
-      </div>
-      <p class="message-box" id="login-password-error" role="alert"></p>
-      <div class="auth-actions">
-        <label
-          ><input type="checkbox" id="remember-me" checked />Remember me</label
-        >
-        <a id="forgotPassword" href="/src/pages/forgot-password/">
-          Forgot Password
+  <body>
+    <!-- Landing page content (hidden initially, shown for non-logged users) -->
+    <div id="landing-page" class="landing-page hidden">
+      <header class="landing-header">
+        <a class="logo" href="/">
+          <img src="/logo.webp" alt="logo" />
+          <span>TeamChat</span>
         </a>
-      </div>
+        <nav class="landing-nav">
+          <a href="/src/pages/about/" class="nav-link">ABOUT</a>
+          <a href="/src/pages/contact-us/" class="nav-link">CONTACT</a>
+        </nav>
+      </header>
 
-      <button
-        type="button"
-        id="login-btn"
-        class="btn btn-primary auth-submit-button"
-      >
-        Login
-      </button>
-      <div class="auth-link-row">
-        <p>
-          Don't have an account?
-          <a href="/src/pages/register/">Register</a>
-        </p>
-      </div>
-    </form>
+      <main class="landing-container">
+        <section class="hero-section">
+          <h1>Connect with Friends Instantly</h1>
+          <p class="hero-description">
+            <strong>TeamChat</strong> este o aplicație modernă de chat care
+            permite comunicarea în timp real între utilizatori. Experiență
+            fluidă de messaging cu design elegant și funcționalități avansate.
+          </p>
+
+          <div class="cta-buttons">
+            <a href="/src/pages/login/" class="btn btn-secondary cta-button">
+              <span>Login</span>
+            </a>
+            <a href="/src/pages/register/" class="btn btn-secondary cta-button">
+              <span>Register</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="features-section">
+          <h2>Funcționalități principale</h2>
+          <div class="features-grid">
+            <div class="feature">
+              <div class="feature-icon">💬</div>
+              <h3>Mesagerie în timp real</h3>
+              <p>
+                Chat instant cu prietenii și colegii cu WebSockets pentru
+                actualizări live
+              </p>
+            </div>
+            <div class="feature">
+              <div class="feature-icon">🔒</div>
+              <h3>Securitate Firebase</h3>
+              <p>
+                Autentificare sigură și protecția datelor cu Firebase
+                Authentication
+              </p>
+            </div>
+            <div class="feature">
+              <div class="feature-icon">📱</div>
+              <h3>Design Responsive</h3>
+              <p>
+                Interfață modernă și prietenoasă care funcționează perfect pe
+                toate dispozitivele
+              </p>
+            </div>
+            <div class="feature">
+              <div class="feature-icon">👥</div>
+              <h3>Gestionare prieteni</h3>
+              <p>
+                Adaugă și gestionează lista de prieteni cu sistem de status
+                online/offline
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="tech-section">
+          <h2>Tehnologii moderne</h2>
+          <ul class="tech-list">
+            <li>
+              <b>TypeScript</b> – pentru un cod sigur și ușor de întreținut
+            </li>
+            <li><b>WebSockets</b> – pentru mesagerie instantanee</li>
+            <li><b>Firebase</b> – pentru autentificare și stocarea datelor</li>
+            <li>
+              <b>Design System CSS</b> – pentru interfață modernă și consistentă
+            </li>
+          </ul>
+        </section>
+      </main>
+    </div>
   </body>
 </html>

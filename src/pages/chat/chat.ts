@@ -11,6 +11,7 @@ import { loadHeader } from "./../../services/page.service";
 import { connectToWebSocketsServer } from "../../services/web-sockets-service/web-sockets.service";
 import { ChatMessage, WssMessage } from "./chat.types";
 import {
+  checkIfUserIsLoggedIn,
   getLoggedInUser,
   onUserAuthStateChanged,
 } from "./../../services/auth-service/auth.service";
@@ -56,24 +57,16 @@ if (textarea) {
   });
 }
 let wsSocket: Socket | null = null;
-let messages: ChatMessage[] = [];
+let conversations: { [friendId: string]: ChatMessage[] } = {};
+let selectedFriendId: string | null = null;
 
 let friends: User[] = [];
 
-// --- INIT & AUTH ---
-onUserAuthStateChanged((user) => {
-  if (!user) {
-    window.location.href = "./index.html";
-  } else {
-    initializePage();
-  }
-});
+initializePage();
 
 async function initializePage() {
-  if (!getLoggedInUser()) {
-    window.location.href = "/index.html";
-    return;
-  }
+  await checkIfUserIsLoggedIn();
+
   loadHeader();
 
   const user = getLoggedInUser();
@@ -85,6 +78,7 @@ async function initializePage() {
   connectToWsServer();
   friends = (await getFriendsOfCurrentUser()) as User[];
   renderFriendsList();
+  renderMessages(); // Show default message initially
 
   sendBtn.addEventListener("click", onSendMessage);
   searchInput!.addEventListener(
@@ -94,6 +88,49 @@ async function initializePage() {
 }
 
 // --- UI FUNCTIONS ---
+function selectFriend(
+  friendId: string,
+  friendName: string,
+  friendEmail: string
+) {
+  selectedFriendId = friendId;
+
+  // Update chat header
+  chatUserName.textContent = friendName;
+  chatUserEmail.textContent = friendEmail;
+
+  // Update visual selection
+  updateFriendSelection(friendId);
+
+  // Load and render messages for this friend
+  renderMessages();
+
+  // On mobile, close the friend list automatically
+  if (window.innerWidth <= 768) {
+    document.body.classList.remove("friend-list-open");
+  }
+
+  // Request messages for this friend from server if needed
+  if (wsSocket) {
+    wsSocket.emit("load-conversation", { friendId });
+  }
+}
+
+function updateFriendSelection(selectedId: string) {
+  // Remove previous selection
+  document.querySelectorAll(".friend").forEach((friend) => {
+    friend.classList.remove("selected");
+  });
+
+  // Add selection to current friend
+  const selectedFriend = document.querySelector(
+    `[data-friend-id="${selectedId}"]`
+  );
+  if (selectedFriend) {
+    selectedFriend.classList.add("selected");
+  }
+}
+
 function renderFriendsList(filteredFriends?: User[]) {
   const renderedFriends = filteredFriends || friends;
   friendList.innerHTML = "";
@@ -104,8 +141,13 @@ function renderFriendsList(filteredFriends?: User[]) {
       friend.email,
       friend.status || "offline",
       () => removeFriend(friend),
-      friend.id
+      friend.id,
+      () => selectFriend(friend.id, friend.name, friend.email) // Add selection callback
     );
+
+    // Add data attribute for easy selection
+    friendItem.setAttribute("data-friend-id", friend.id);
+
     friendList.appendChild(friendItem);
   });
 
@@ -127,32 +169,67 @@ async function removeFriend(friend: User) {
 }
 
 function renderMessages() {
-  if (messagesContainer) {
-    messagesContainer.innerHTML = "";
-    const user = getLoggedInUser();
-    messages.forEach((msg) => {
-      const isMine = msg.from === (user?.uid || user?.email);
+  if (!messagesContainer) return;
 
-      const displayName =
-        typeof msg.name === "string" && msg.name.trim()
-          ? msg.name
-          : typeof msg.email === "string" && msg.email.trim()
-          ? msg.email
-          : msg.from;
-      const messageBubble = createMessageBubble(
-        msg.message,
-        msg.time,
-        isMine ? "right" : "left",
-        displayName
-      );
-      messagesContainer.append(messageBubble);
-    });
+  messagesContainer.innerHTML = "";
+
+  if (!selectedFriendId) {
+    // Show default message when no friend is selected
+    const defaultMessage = document.createElement("div");
+    defaultMessage.className = "default-message";
+    defaultMessage.innerHTML = `
+      <div class="default-message-content">
+        <h3>Welcome to TeamChat!</h3>
+        <p>Select a friend from the sidebar to start chatting</p>
+      </div>
+    `;
+    messagesContainer.appendChild(defaultMessage);
+    return;
   }
+
+  const user = getLoggedInUser();
+  const currentConversation = conversations[selectedFriendId] || [];
+
+  currentConversation.forEach((msg: ChatMessage) => {
+    const isMine = msg.from === (user?.uid || user?.email);
+
+    const displayName =
+      typeof msg.name === "string" && msg.name.trim()
+        ? msg.name
+        : typeof msg.email === "string" && msg.email.trim()
+        ? msg.email
+        : msg.from;
+    const messageBubble = createMessageBubble(
+      msg.message,
+      msg.time,
+      isMine ? "right" : "left",
+      displayName
+    );
+    messagesContainer.append(messageBubble);
+  });
 }
 
 //--open-close fiend list mobile-only
 openCloseFriendList?.addEventListener("click", function () {
   document.body.classList.toggle("friend-list-open");
+
+  // If opening the friend list, reset selection and show default state
+  if (document.body.classList.contains("friend-list-open")) {
+    selectedFriendId = null;
+
+    // Clear chat header to default
+    const user = getLoggedInUser();
+    chatUserName.textContent = user?.displayName || user?.email || "Chat";
+    chatUserEmail.textContent = user?.email || "";
+
+    // Clear friend selection
+    document.querySelectorAll(".friend").forEach((friend) => {
+      friend.classList.remove("selected");
+    });
+
+    // Show default message
+    renderMessages();
+  }
 });
 
 // --- MODALS ---
@@ -177,20 +254,34 @@ function connectToWsServer() {
 function onRecieveMessageFromWsServer(message: WssMessage) {
   switch (message.type) {
     case "load-chat-messages":
-      messages = message.data || [];
-      renderMessages();
+      // Load messages for current selected friend
+      if (selectedFriendId) {
+        conversations[selectedFriendId] = message.data || [];
+        renderMessages();
+      }
       break;
     case "chat-update":
       const newMessage = message.data;
-      const displayName =
-        newMessage.name || newMessage.email || newMessage.from;
-      const messageBubble = createMessageBubble(
-        newMessage.message,
-        newMessage.time,
-        "left",
-        displayName
-      );
-      messagesContainer.append(messageBubble);
+      const senderId = newMessage.from;
+
+      // Add message to the correct conversation
+      if (!conversations[senderId]) {
+        conversations[senderId] = [];
+      }
+      conversations[senderId].push(newMessage);
+
+      // If this message is for the currently selected friend, display it
+      if (selectedFriendId === senderId) {
+        const displayName =
+          newMessage.name || newMessage.email || newMessage.from;
+        const messageBubble = createMessageBubble(
+          newMessage.message,
+          newMessage.time,
+          "left",
+          displayName
+        );
+        messagesContainer.append(messageBubble);
+      }
       break;
   }
 }
@@ -203,6 +294,11 @@ function onWssError(error: Error) {
 function onSendMessage() {
   const message = messageInput.value;
   if (message.trim() === "") return;
+  if (!selectedFriendId) {
+    alert("Please select a friend to chat with!");
+    return;
+  }
+
   const user = getLoggedInUser();
   const newMessage = {
     from: user?.uid || "Anonim",
@@ -210,9 +306,14 @@ function onSendMessage() {
     email: user?.email || "",
     time: new Date().toISOString(),
     message,
+    to: selectedFriendId, // Add recipient info
   };
 
-  messages.push(newMessage);
+  // Add message to current conversation
+  if (!conversations[selectedFriendId]) {
+    conversations[selectedFriendId] = [];
+  }
+  conversations[selectedFriendId].push(newMessage);
 
   const messageBubble = createMessageBubble(
     newMessage.message,

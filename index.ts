@@ -1,86 +1,42 @@
-import { loginUser } from "./src/services/auth-service/auth.service.ts";
-import {
-  addInputValidation,
-  validateEmailInput,
-  validatePasswordInput,
-} from "./src/services/validation-service/validation.service.ts";
+import { onUserAuthStateChanged } from "./src/services/auth-service/auth.service";
 import {
   renderLoadingSpinner,
   removeLoadingSpinner,
-} from "./src/services/loading.service.ts";
-
-import { configureElement } from "./src/services/dom.service.ts";
-import { updateDbDoc } from "./src/services/db-service/db.service.ts";
-
-const form = document.querySelector("form")!;
-const emailInput = document.getElementById("email")! as HTMLInputElement;
-const passwordInput = document.getElementById("password")! as HTMLInputElement;
-const rememberMeCheckbox = document.getElementById("remember-me")!;
-const loginButton = document.getElementById("login-btn")!;
-const messageBox = document.querySelector(".message-box")! as HTMLElement;
-const emailError = document.getElementById("login-email-error")!;
-const passwordError = document.getElementById("login-password-error")!;
+} from "./src/services/loading.service";
 
 initializePage();
-function initializePage() {
-  loginButton.addEventListener("click", onLoginButtonClick);
-  rememberMeCheckbox.addEventListener("change", onRememberMeCheckboxTick);
-  addInputValidation(emailInput, validateEmailInput, emailError);
-  addInputValidation(passwordInput, validatePasswordInput, passwordError);
-}
 
-async function onLoginButtonClick(e: MouseEvent): Promise<void> {
-  e.preventDefault();
-  const isValid = validateInputs();
-  if (!isValid) return;
-  renderLoadingSpinner(form);
+async function initializePage() {
+  const bodyElement = document.body;
+  const landingPage = document.getElementById("landing-page");
 
   try {
-    const user = await loginUser({
-      email: emailInput.value,
-      password: passwordInput.value,
+    // Show loading spinner while checking authentication
+    renderLoadingSpinner(bodyElement);
+
+    // Use Firebase auth state observer for accurate user detection
+    onUserAuthStateChanged((user) => {
+      // Remove loading spinner
+      removeLoadingSpinner(bodyElement);
+
+      if (user) {
+        // User is logged in, redirect to chat
+        window.location.href = "/src/pages/chat/";
+      } else {
+        // User is not logged in, show landing page
+        if (landingPage) {
+          landingPage.classList.remove("hidden");
+        }
+      }
     });
+  } catch (error) {
+    console.error("Error checking auth state:", error);
+    // Remove loading spinner on error
+    removeLoadingSpinner(bodyElement);
 
-    await updateDbDoc("users", user.uid, {
-      status: "online",
-    });
-
-    configureElement(messageBox, "message-box success", "Login successful");
-
-    setTimeout(() => {
-      window.location.href = "/src/pages/chat/index.html";
-    }, 1000);
-  } catch (error: unknown) {
-    configureElement(
-      messageBox,
-      "message-box error",
-      "Email or password is incorrect"
-    );
-  } finally {
-    removeLoadingSpinner(form);
-  }
-}
-
-function onRememberMeCheckboxTick(e: Event) {
-  const target = e.target;
-
-  if (target instanceof HTMLInputElement && target.type === "checkbox") {
-    if (target.checked) {
-      emailInput.setAttribute("autocomplete", "email");
-      passwordInput.setAttribute("autocomplete", "current-password");
-    } else {
-      emailInput.setAttribute("autocomplete", "off");
-      passwordInput.setAttribute("autocomplete", "off");
+    // Show landing page as fallback
+    if (landingPage) {
+      landingPage.classList.remove("hidden");
     }
   }
-}
-
-/** Inputs validation */
-function validateInputs(): boolean {
-  const emailErrorMessage = validateEmailInput(emailInput.value);
-  const passwordErrorMessage = validatePasswordInput(passwordInput.value);
-
-  configureElement(emailError, "message-box error", emailErrorMessage);
-  configureElement(passwordError, "message-box error", passwordErrorMessage);
-  return !(emailErrorMessage || passwordErrorMessage);
 }

@@ -2,7 +2,7 @@ import { createDomElementFromHtmlString } from "./dom.service";
 
 const loadingSpinnerTemplate = `
   <div class="loading-spinner">
-    <img alt="Loading..." src="/public/loading-spinner.svg" />
+    <img alt="Loading..." src="/loading-spinner.svg" />
   </div>
 `;
 type ParentElement = HTMLElement | null;

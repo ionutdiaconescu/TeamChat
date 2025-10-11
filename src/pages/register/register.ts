@@ -1,4 +1,7 @@
-import { register } from "./../../services/auth-service/auth.service.ts";
+import {
+  checkIfUserIsLoggedIn,
+  register,
+} from "./../../services/auth-service/auth.service.ts";
 import {
   validateNameInput,
   validateEmailInput,
@@ -13,6 +16,7 @@ import {
 } from "../../services/loading.service";
 import { RegisterElements } from "./register.types.ts";
 import { updateDbDoc } from "./../../services/db-service/db.service.ts";
+import { loadGuestHeader } from "./../../services/page.service.ts";
 
 const elements: RegisterElements = {
   nameInput: document.getElementById("username") as HTMLInputElement,
@@ -37,7 +41,10 @@ const elements: RegisterElements = {
 
 initializePage();
 
-function initializePage() {
+async function initializePage() {
+  loadGuestHeader();
+  await checkIfUserIsLoggedIn();
+
   initializeInputValidation();
   elements.registerBtn?.addEventListener("click", onSubmit);
 }
@@ -56,7 +63,8 @@ function initializeInputValidation() {
   );
   addInputValidation(
     elements.confirmPasswordInput,
-    (value) => validateConfirmPassword(value, elements.passwordInput.value),
+    (value: string) =>
+      validateConfirmPassword(value, elements.passwordInput.value),
     elements.confirmPasswordError
   );
 }

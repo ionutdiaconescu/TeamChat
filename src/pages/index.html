@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TeamChat - Redirecting...</title>
+    <link rel="stylesheet" href="../style/design-system/index.css" />
+    <link rel="stylesheet" href="../style/design-system/spinner.css" />
+  </head>
+  <body class="flex flex-center">
+    <div class="loading-text">Redirecting...</div>
+
+    <script type="module">
+      import { checkIfUserIsLoggedIn } from "../services/auth-service/auth.service.ts";
+
+      // Auto-redirect based on authentication status
+      checkIfUserIsLoggedIn();
+    </script>
+  </body>
+</html>

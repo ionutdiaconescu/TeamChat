@@ -1,4 +1,12 @@
 @import url("../style/design-system/index.css");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Base header styles */
 .desktop-only {
   display: flex;
 }
@@ -11,11 +19,89 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--size-sm);
-  width: 100vw;
+  width: 100%;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   z-index: var(--z-index-100);
   background: var(--color-primary);
+  box-sizing: border-box;
+}
+
+/* Guest header - more subtle and futuristic */
+.guest-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-inset-md);
+  z-index: var(--z-index-1000);
+  box-sizing: border-box;
+  padding: var(--size-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Ensure auth pages have proper top margin for fixed header */
+.auth-page {
+  padding-top: calc(var(--size-4xl) + var(--size-sm));
+}
+
+.guest-header .logo span {
+  background: linear-gradient(135deg, #ffffff, #dadae4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Guest navigation - minimal and sleek */
+.guest-nav {
+  gap: var(--size-lg);
+}
+
+.guest-nav a {
+  position: relative;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: var(--size-xs) var(--size-sm);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.guest-nav a::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+  border-radius: var(--radius-lg);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.guest-nav a:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-inset-md);
+  transition: 0.5s;
+}
+
+.guest-nav a:hover::before {
+  opacity: 1;
 }
 
 a.logo {
@@ -81,6 +167,14 @@ a.logo span {
   color: var(--color-text-white);
   font-weight: bold;
 }
+
+.login-button {
+  box-shadow: var(--shadow-inset-sm);
+}
+.login-button span {
+  color: var(--color-text-white);
+  font-weight: bold;
+}
 /* --- MOBILE --- */
 @media all and (max-width: 1199px) {
   .desktop-only {
@@ -90,12 +184,62 @@ a.logo span {
     display: flex;
     width: 100%;
   }
+
+  /* Hide desktop login button on mobile */
+  .login-button.desktop-only {
+    display: none !important;
+  }
+
+  /* Show mobile login button */
+  .login-button.mobile-only {
+    display: flex !important;
+    width: 100%;
+  }
   .header {
     overflow: hidden;
   }
 
   .header:has(.nav-bar-hidden-toggle:checked) {
     overflow: visible;
+  }
+
+  /* Guest header mobile adjustments */
+  .guest-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-index-1000);
+  }
+
+  /* Auth pages mobile top margin */
+  .auth-page {
+    padding-top: calc(var(--size-4xl) + var(--size-sm));
+  }
+
+  /* Guest header mobile menu styling */
+  .guest-header .nav-bar {
+    backdrop-filter: blur(80px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-inset-md);
+  }
+
+  .guest-nav a {
+    color: white;
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  .guest-nav a:hover {
+    background: linear-gradient(
+      135deg,
+      var(--color-secondary),
+      var(--color-secondary-hover)
+    );
+    color: #ffffff;
+    transform: none;
   }
 
   .profile-section {
@@ -158,7 +302,9 @@ a.logo span {
     position: absolute;
     top: calc(100% + 20px);
     left: auto;
-    width: 90vw;
+    right: var(--size-md);
+    width: calc(100% - var(--size-xl));
+    max-width: 300px;
     min-height: var(--height-sm);
     background: var(--bg-color-white);
     border-radius: 56px 56px 56px 56px / 72px 72px 48px 48px;
@@ -172,6 +318,7 @@ a.logo span {
     transform: translateY(-40px) scale(0.95);
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.4, 2, 0.6, 1);
+    box-sizing: border-box;
   }
   .nav-bar a {
     width: 100%;
@@ -186,7 +333,7 @@ a.logo span {
     content: "";
     position: absolute;
     top: var(--negative-size-xl);
-    right: var(--size-md);
+    right: var(--size-lg);
     width: var(--size-xl);
     height: var(--size-3xl);
     background: var(--bg-color-white);
@@ -230,5 +377,42 @@ a.logo span {
   }
   .logout-button.mobile-only:hover span {
     color: var(--color-text-white);
+  }
+
+  /* Login button styles - matching logout button */
+  .login-button.mobile-only {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: var(--size-xs) var(--size-lg);
+    font-size: var(--font-size-md);
+    font-weight: bold;
+    margin-top: 0;
+    box-shadow: none;
+    text-align: left;
+    height: auto;
+  }
+  .login-button.mobile-only span {
+    color: var(--color-text);
+    font-size: var(--font-size-xl);
+    font-weight: bold;
+    padding: 0;
+    margin: 0;
+  }
+  .login-button.mobile-only:hover {
+    background: var(--color-secondary-hover);
+  }
+  .login-button.mobile-only:hover span {
+    color: var(--color-text-white);
+  }
+
+  .login-button.desktop-only {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }

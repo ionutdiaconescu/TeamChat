@@ -2,11 +2,13 @@
   width: 100%;
   min-height: 100vh;
   padding: var(--size-lg) 0;
-  background-image: url("/public/register-bg.webp");
+  background-image: url("/register-bg.webp");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   font-family: var(--default-font);
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .auth-form {

@@ -38,7 +38,8 @@ export const createFriendItem = (
   email: string,
   status: string,
   onRemove: () => void,
-  friendId: string
+  friendId: string,
+  onSelect?: () => void
 ): HTMLElement => {
   const avatar = createDomElement(
     "div",
@@ -85,6 +86,18 @@ export const createFriendItem = (
     info,
     removeBtn,
   ]);
+
+  // Add click handler for friend selection
+  if (onSelect) {
+    item.addEventListener("click", (e) => {
+      // Don't trigger selection if clicking remove button
+      if (!(e.target as HTMLElement).closest(".remove-friend-btn")) {
+        onSelect();
+      }
+    });
+    item.style.cursor = "pointer";
+  }
+
   return item;
 };
 export const createAddFriendButton = (onClick: () => void): HTMLElement => {

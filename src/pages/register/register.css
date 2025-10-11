@@ -1,2 +1,3 @@
-@import "/src/style/design-system/index.css";
-@import "/src/style/design-system/auth.css";
+@import "../../style/design-system/index.css";
+@import "../../style/design-system/auth.css";
+@import "../../style/header.css";
