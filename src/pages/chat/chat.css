@@ -1,6 +1,6 @@
 @import url("../../style/design-system/index.css");
+@import url("../../style/pages.css");
 @import url("../../style/header.css");
-@import url("../../style/design-system/spinner.css");
 
 *,
 *::before,
@@ -264,6 +264,7 @@ body {
 }
 
 .friend-info .name {
+  display: block;
   color: var(--color-text-white);
   font-weight: 600;
   font-size: var(--size-md);
@@ -821,7 +822,8 @@ body.friend-list-open .chat-window {
     flex-direction: column;
     height: 100vh;
     margin: 0;
-    padding: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .chat-window {

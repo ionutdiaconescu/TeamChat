@@ -8,14 +8,20 @@
   cursor: pointer;
 }
 
+.btn:not(.btn-link):hover {
+  box-shadow: var(--shadow-inset-sm);
+  transition: box-shadow 0.5s;
+  filter: contrast(120%);
+}
+
 .btn-sm {
   padding: var(--size-xs) var(--size-sm);
 }
 
-.btn:hover {
-  box-shadow: var(--shadow-inset-sm);
-  transition: box-shadow 0.5s;
-  filter: contrast(120%);
+.btn.btn-link {
+  border: none;
+  background: transparent;
+  color: var(--color-text-white);
 }
 
 .btn-primary {

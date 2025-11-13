@@ -19,6 +19,11 @@
   z-index: var(--z-index-1000);
 }
 
+.loading-spinner.opaque {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
 .loading-spinner img {
   position: absolute;
   top: 50%;

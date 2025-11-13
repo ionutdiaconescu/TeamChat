@@ -9,24 +9,14 @@
       content="TeamChat - your number one chatting app. Keep in touch with any of your friends with ease."
     />
     <link rel="stylesheet" href="./index.css" />
-    <link rel="stylesheet" href="./src/style/design-system/spinner.css" />
     <script type="module" src="./index.ts"></script>
   </head>
   <body>
     <!-- Landing page content (hidden initially, shown for non-logged users) -->
-    <div id="landing-page" class="landing-page hidden">
-      <header class="landing-header">
-        <a class="logo" href="/">
-          <img src="/logo.webp" alt="logo" />
-          <span>TeamChat</span>
-        </a>
-        <nav class="landing-nav">
-          <a href="/src/pages/about/" class="nav-link">ABOUT</a>
-          <a href="/src/pages/contact-us/" class="nav-link">CONTACT</a>
-        </nav>
-      </header>
+    <div class="page public-page landing-page">
+      <header id="header"></header>
 
-      <main class="landing-container">
+      <main class="matte-glass-container landing-container">
         <section class="hero-section">
           <h1>Connect with Friends Instantly</h1>
           <p class="hero-description">

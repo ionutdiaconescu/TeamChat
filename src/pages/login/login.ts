@@ -14,7 +14,7 @@ import {
 
 import { configureElement } from "./../../services/dom.service.ts";
 import { updateDbDoc } from "./../../services/db-service/db.service.ts";
-import { loadGuestHeader } from "./../../services/page.service.ts";
+import { loadHeader } from "./../../services/page.service.ts";
 
 const form = document.querySelector("form")!;
 const emailInput = document.getElementById("email")! as HTMLInputElement;
@@ -28,7 +28,7 @@ const passwordError = document.getElementById("login-password-error")!;
 initializePage();
 
 async function initializePage() {
-  loadGuestHeader();
+  loadHeader();
   await checkIfUserIsLoggedIn();
   loginButton.addEventListener("click", onLoginButtonClick);
   rememberMeCheckbox.addEventListener("change", onRememberMeCheckboxTick);

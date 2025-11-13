@@ -13,7 +13,6 @@ import { ChatMessage, WssMessage } from "./chat.types";
 import {
   checkIfUserIsLoggedIn,
   getLoggedInUser,
-  onUserAuthStateChanged,
 } from "./../../services/auth-service/auth.service";
 import {
   addFriendByEmail,

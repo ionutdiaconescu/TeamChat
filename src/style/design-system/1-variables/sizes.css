@@ -34,8 +34,8 @@
   --width-md: 25rem; /* 400px */
   --width-lg: 31.25rem; /* 500px */
   --width-xl: 37.5rem; /* 600px */
-  --width-xxl: 50rem; /* 800px */
-  --width-xxxl: 75rem; /* 1200px */
+  --width-2xl: 50rem; /* 800px */
+  --width-3xl: 75rem; /* 1200px */
 
   /* Heights */
   --height-xxs: 7.5rem; /*120px*/
@@ -44,8 +44,8 @@
   --height-md: 25rem; /* 400px */
   --height-lg: 31.25rem; /* 500px */
   --height-xl: 37.5rem; /* 600px */
-  --height-xxl: 50rem; /* 800px */
-  --height-xxxl: 75rem; /* 1200px */
+  --height-2xl: 50rem; /* 800px */
+  --height-3xl: 75rem; /* 1200px */
   /* Negative Widths */
   --negative-width-xs: -12.5rem; /* -200px */
   --negative-width-sm: -18.75rem; /* -300px */

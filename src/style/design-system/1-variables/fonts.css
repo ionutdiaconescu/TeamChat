@@ -9,5 +9,7 @@
   --font-size-md: 1rem; /* 16px */
   --font-size-lg: 1.25rem; /* 20px */
   --font-size-xl: 2rem; /* 32px */
-  --font-size-xxl: 3rem; /* 48px */
+  --font-size-2xl: 3rem; /* 48px */
+  --font-size-3xl: 4rem; /* 64px */
+  --font-size-4xl: 5rem; /* 80px */
 }

@@ -16,7 +16,7 @@ import {
 } from "../../services/loading.service";
 import { RegisterElements } from "./register.types.ts";
 import { updateDbDoc } from "./../../services/db-service/db.service.ts";
-import { loadGuestHeader } from "./../../services/page.service.ts";
+import { loadHeader } from "./../../services/page.service.ts";
 
 const elements: RegisterElements = {
   nameInput: document.getElementById("username") as HTMLInputElement,
@@ -42,7 +42,7 @@ const elements: RegisterElements = {
 initializePage();
 
 async function initializePage() {
-  loadGuestHeader();
+  loadHeader();
   await checkIfUserIsLoggedIn();
 
   initializeInputValidation();

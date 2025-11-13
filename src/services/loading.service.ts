@@ -1,19 +1,22 @@
-import { createDomElementFromHtmlString } from "./dom.service";
+import { createDomElementFromHtmlString } from './dom.service';
 
-const loadingSpinnerTemplate = `
-  <div class="loading-spinner">
+const loadingSpinnerTemplate = (isOpaque: boolean) => `
+  <div class="loading-spinner ${isOpaque ? 'opaque' : ''}">
     <img alt="Loading..." src="/loading-spinner.svg" />
   </div>
 `;
 type ParentElement = HTMLElement | null;
 
-export const renderLoadingSpinner = (parentElement: ParentElement): void => {
+export const renderLoadingSpinner = (
+  parentElement: ParentElement,
+  isOpaque: boolean = false
+): void => {
   if (parentElement) {
-    parentElement.classList.add("relative");
+    parentElement.classList.add('relative');
 
     //Check if parent element is null and call the function after.
     const spinner = createDomElementFromHtmlString(
-      loadingSpinnerTemplate,
+      loadingSpinnerTemplate(isOpaque),
       parentElement
     );
     if (spinner) {
@@ -24,8 +27,8 @@ export const renderLoadingSpinner = (parentElement: ParentElement): void => {
 
 export const removeLoadingSpinner = (parentElement: ParentElement): void => {
   if (parentElement) {
-    const spinner = parentElement.querySelector(".loading-spinner");
+    const spinner = parentElement.querySelector('.loading-spinner');
     if (spinner) spinner.remove();
-    parentElement.classList.remove("relative");
+    parentElement.classList.remove('relative');
   }
 };

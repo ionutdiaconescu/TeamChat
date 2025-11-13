@@ -1,4 +1,4 @@
-@import "../../style/design-system/index.css";
-@import "../../style/design-system/auth.css";
-@import "../../style/design-system/spinner.css";
-@import "../../style/header.css";
+@import '../../style/design-system/index.css';
+@import '../../style/pages.css';
+@import '../../style/auth.css';
+@import '../../style/header.css';

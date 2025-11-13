@@ -1,7 +1,7 @@
-import { loadSmartHeader } from "../../services/page.service";
+import { loadHeader } from "../../services/page.service";
 
 initializePage();
 
 function initializePage() {
-  loadSmartHeader();
+  loadHeader();
 }

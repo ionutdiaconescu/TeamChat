@@ -1,18 +1,23 @@
-import { onUserAuthStateChanged } from "./src/services/auth-service/auth.service";
+import { onUserAuthStateChanged } from './src/services/auth-service/auth.service';
+import { loadHeader } from './src/services/page.service';
 import {
   renderLoadingSpinner,
   removeLoadingSpinner,
-} from "./src/services/loading.service";
+} from './src/services/loading.service';
 
 initializePage();
 
-async function initializePage() {
+function initializePage() {
+  loadHeader();
+  redirectLoggedInUser();
+}
+
+function redirectLoggedInUser(): void {
   const bodyElement = document.body;
-  const landingPage = document.getElementById("landing-page");
 
   try {
     // Show loading spinner while checking authentication
-    renderLoadingSpinner(bodyElement);
+    renderLoadingSpinner(bodyElement, true);
 
     // Use Firebase auth state observer for accurate user detection
     onUserAuthStateChanged((user) => {
@@ -21,22 +26,12 @@ async function initializePage() {
 
       if (user) {
         // User is logged in, redirect to chat
-        window.location.href = "/src/pages/chat/";
-      } else {
-        // User is not logged in, show landing page
-        if (landingPage) {
-          landingPage.classList.remove("hidden");
-        }
+        window.location.href = '/src/pages/chat/';
       }
     });
   } catch (error) {
-    console.error("Error checking auth state:", error);
+    console.error('Error checking auth state:', error);
     // Remove loading spinner on error
     removeLoadingSpinner(bodyElement);
-
-    // Show landing page as fallback
-    if (landingPage) {
-      landingPage.classList.remove("hidden");
-    }
   }
 }

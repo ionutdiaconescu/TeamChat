@@ -1,5 +1,6 @@
 /* Main index page styles */
 @import "./src/style/design-system/index.css";
+@import "./src/style/pages.css";
 @import "./src/style/header.css";
 
 *,
@@ -26,83 +27,9 @@ body {
   flex-direction: column;
 }
 
-.landing-page.hidden {
-  display: none;
-}
-
-/* Landing header - similar to other pages but fixed */
-.landing-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--size-sm);
-  width: 100vw;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: var(--z-index-100);
-  background: var(--color-primary);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: var(--shadow-inset-md);
-  z-index: var(--z-index-1000);
-}
-
-.landing-header a.logo {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  margin-left: var(--size-md);
-}
-
-.landing-header a.logo img {
-  left: var(--size-xs);
-  width: var(--size-xl);
-  height: var(--size-xl);
-}
-
-.landing-header a.logo span {
-  font-size: var(--font-size-xl);
-  font-weight: bold;
-  margin-left: var(--size-xs);
-  color: var(--color-text-white);
-}
-
-.landing-nav {
-  display: flex;
-  gap: var(--size-lg);
-  margin-right: var(--size-md);
-}
-
-.nav-link {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: var(--color-text-white);
-  font-size: var(--font-size-md);
-  font-weight: bold;
-  padding: var(--size-xs) var(--size-sm);
-  border-radius: var(--radius-md);
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.nav-link:hover {
-  background: var(--color-secondary-hover);
-  border-radius: var(--radius-md);
-}
-
 /* Main container - consistent with About/Contact */
 .landing-container {
-  max-width: var(--width-xxl);
-  height: 100%;
-  margin: calc(var(--size-4xl) + var(--size-sm)) auto var(--size-2xl) auto;
-  background: var(--color-secondary);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-inset-md);
-  padding: var(--size-2xl);
-  flex: 1;
+  max-width: var(--width-2xl);
 }
 
 /* Hero section */
@@ -112,7 +39,7 @@ body {
 }
 
 .hero-section h1 {
-  font-size: var(--font-size-xxl);
+  font-size: var(--font-size-2xl);
   margin-bottom: var(--size-md);
   color: var(--bg-color-white);
   letter-spacing: var(--letter-spacing-md);
@@ -190,7 +117,7 @@ body {
 }
 
 .feature-icon {
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-4xl);
   margin-bottom: var(--size-md);
 }
 
