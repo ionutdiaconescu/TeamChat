@@ -3,14 +3,14 @@ import { configureElement } from "../dom.service.ts";
 import {
   InputValidator,
   DualFieldValidator,
-} from "../validation.service.types.ts";
+} from "./validation.service.types.ts";
 
 // ---------------- VALIDATION HELPERS ----------------
 
 export const addInputValidation = (
   inputElement: HTMLInputElement,
   validatorFn: InputValidator,
-  messageBox: HTMLElement
+  messageBox: HTMLElement,
 ): void => {
   const handler = (): void => {
     const error = validatorFn(inputElement.value);
@@ -67,7 +67,7 @@ export const validateNewPassword: DualFieldValidator = (value, oldPassword) => {
 
 export const validateConfirmPassword: DualFieldValidator = (
   value,
-  newPassword
+  newPassword,
 ) => {
   const baseError = validatePasswordInput(value);
   if (baseError) return baseError;
