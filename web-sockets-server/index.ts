@@ -1,13 +1,18 @@
 import { Server } from "socket.io";
-import { addDbDoc, getDbDocs } from "./../src/services/db-service/db.service.ts";
+import {
+  addDbDoc,
+  getDbDocs,
+} from "./../src/services/db-service/db.service.ts";
 
 const formatMessage = (data, type = "message") => ({
   type,
   data,
 });
 
+// allow CORS origin via environment variable (e.g. frontend URL)
+const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:5173";
 const webSocketsServer = new Server({
-  cors: { origin: "http://localhost:5173" },
+  cors: { origin: corsOrigin },
 });
 
 async function fetchMessages() {
@@ -26,7 +31,6 @@ webSocketsServer.on("connection", async (socket) => {
   const messages = await fetchMessages();
   socket.emit("message", formatMessage(messages, "load-chat-messages"));
 
-
   socket.on("send-chat-message", async (data) => {
     // Save new message to Firestore
     try {
@@ -43,5 +47,6 @@ webSocketsServer.on("connection", async (socket) => {
   });
 });
 
-webSocketsServer.listen(8000);
-console.log("WebSocket server is running on port 8000");
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8000;
+webSocketsServer.listen(PORT);
+console.log(`WebSocket server is running on port ${PORT}`);
