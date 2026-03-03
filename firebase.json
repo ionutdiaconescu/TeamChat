@@ -1,16 +1,9 @@
 {
   "hosting": {
     "public": "dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    // no rewrites: we host multiple static pages under /src/pages,
+    // so requests should resolve directly to the corresponding folder
+    // instead of always falling back to index.html.
   }
 }
