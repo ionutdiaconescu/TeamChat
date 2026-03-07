@@ -7,7 +7,13 @@ export type ChatMessage = {
   message: string;
   imageUrl?: string;
   imageName?: string;
-  type?: "text" | "image";
+  documentUrl?: string;
+  documentName?: string;
+  audioUrl?: string;
+  audioDurationSec?: number;
+  mimeType?: string;
+  fileSize?: number;
+  type?: "text" | "image" | "document" | "audio";
 };
 
 export interface WssMessage {

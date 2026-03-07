@@ -9,6 +9,9 @@ export const createMessageBubble = (
   direction: "left" | "right",
   user: string,
   imageUrl?: string,
+  documentUrl?: string,
+  documentName?: string,
+  audioUrl?: string,
 ): HTMLElement => {
   const userElem = createDomElement("div", "user", user);
   const textElem = createDomElement("div", "text", message);
@@ -38,6 +41,38 @@ export const createMessageBubble = (
       window.open(imageUrl, "_blank");
     };
     elements.splice(1, 0, imageElem); // Insert image between user and text
+  }
+
+  if (documentUrl) {
+    const documentLink = createDomElement(
+      "a",
+      "message-document-link",
+      documentName || "Download document",
+    ) as HTMLAnchorElement;
+    documentLink.href = documentUrl;
+    documentLink.target = "_blank";
+    documentLink.rel = "noopener noreferrer";
+    documentLink.download = documentName || "document";
+
+    const documentWrapper = createDomElement(
+      "div",
+      "message-document",
+      "",
+      undefined,
+      [documentLink],
+    );
+    elements.splice(1, 0, documentWrapper);
+  }
+
+  if (audioUrl) {
+    const audioElem = createDomElement(
+      "audio",
+      "message-audio",
+    ) as HTMLAudioElement;
+    audioElem.controls = true;
+    audioElem.preload = "metadata";
+    audioElem.src = audioUrl;
+    elements.splice(1, 0, audioElem);
   }
 
   const bubble = createDomElement(

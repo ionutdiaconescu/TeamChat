@@ -30,6 +30,11 @@ import {
   saveMessage,
 } from "../../services/messages-service/messages.service";
 import { User } from "./../../services/user-service/user.service.types";
+import {
+  ChatAttachmentsController,
+  initChatAttachments,
+} from "./chat-attachments";
+import { createDebouncedFunction } from "../../common/utils";
 
 // --- DOM ELEMENTS ---
 const messagesContainer = document.querySelector(".chat-messages")!;
@@ -54,7 +59,38 @@ const textarea = document.querySelector(
   ".message-input",
 ) as HTMLTextAreaElement | null;
 const imageInput = document.getElementById("imageInput") as HTMLInputElement;
-const imageUploadIcon = document.getElementById("imageUploadIcon");
+const documentInput = document.getElementById(
+  "documentInput",
+) as HTMLInputElement;
+const attachmentMenuButton = document.getElementById("attachmentMenuButton");
+const attachmentMenu = document.getElementById("attachmentMenu");
+const attachImageOption = document.getElementById("attachImageOption");
+const attachDocumentOption = document.getElementById("attachDocumentOption");
+const audioRecordBtn = document.getElementById("audioRecordBtn");
+const MOBILE_BREAKPOINT = 768;
+const PERSIST_MEDIA_CONTENT_IN_DB = false;
+
+const isMobileViewport = () => window.innerWidth <= MOBILE_BREAKPOINT;
+
+function syncFriendListToggleButtonState() {
+  if (!openCloseFriendList) return;
+
+  const isOpen = document.body.classList.contains("friend-list-open");
+  openCloseFriendList.setAttribute("aria-expanded", String(isOpen));
+  openCloseFriendList.setAttribute(
+    "aria-label",
+    isOpen ? "Hide friends list" : "Show friends list",
+  );
+}
+
+function handleViewportResize() {
+  if (!isMobileViewport()) {
+    document.body.classList.remove("friend-list-open");
+  }
+
+  syncFriendListToggleButtonState();
+}
+
 if (textarea) {
   textarea.addEventListener("input", function (this: HTMLTextAreaElement) {
     this.style.height = "auto";
@@ -68,6 +104,7 @@ let userStatuses: { [userId: string]: { isOnline: boolean; lastSeen?: Date } } =
   {};
 let typingTimeouts: { [userId: string]: NodeJS.Timeout } = {};
 let isTyping: boolean = false;
+let attachmentsController: ChatAttachmentsController | null = null;
 
 let friends: User[] = [];
 
@@ -88,30 +125,30 @@ async function initializePage() {
   friends = (await getFriendsOfCurrentUser()) as User[];
   renderFriendsList();
   renderMessages(); // Show default message initially
+  syncFriendListToggleButtonState();
+  window.addEventListener("resize", handleViewportResize);
 
   sendBtn.addEventListener("click", onSendMessage);
   searchInput!.addEventListener(
     "input",
-    debounce(renderFilteredFriendsList, 300),
+    createDebouncedFunction(renderFilteredFriendsList, 300),
   );
   // Add typing indicator
   messageInput.addEventListener("input", handleTyping);
 
-  // Add image upload functionality
-  if (imageUploadIcon && imageInput) {
-    imageUploadIcon.addEventListener("click", () => {
-      if (!selectedFriendId) {
-        alert("Please select a friend before sending an image.");
-        return;
-      }
-
-      // Reset value so selecting the same file again still triggers change.
-      imageInput.value = "";
-      imageInput.click();
-    });
-
-    imageInput.addEventListener("change", handleImageUpload);
-  }
+  attachmentsController = initChatAttachments({
+    attachmentMenuButton,
+    attachmentMenu,
+    attachImageOption,
+    attachDocumentOption,
+    imageInput,
+    documentInput,
+    audioRecordBtn,
+    getSelectedFriendId: () => selectedFriendId,
+    onImageSelected: sendImageMessage,
+    onDocumentSelected: sendDocumentMessage,
+    onAudioReady: sendAudioMessage,
+  });
 }
 
 // --- UI FUNCTIONS ---
@@ -134,10 +171,12 @@ async function selectFriend(
 
   // Render messages
   renderMessages();
+  closeAttachmentMenu();
 
   // On mobile, close the friend list automatically
-  if (window.innerWidth <= 768) {
+  if (isMobileViewport()) {
     document.body.classList.remove("friend-list-open");
+    syncFriendListToggleButtonState();
   }
 }
 
@@ -231,44 +270,200 @@ function renderMessages() {
   currentConversation.forEach((msg: ChatMessage) => {
     const isMine = msg.from === (user?.uid || user?.email);
 
-    const displayName =
-      typeof msg.name === "string" && msg.name.trim()
-        ? msg.name
-        : typeof msg.email === "string" && msg.email.trim()
-          ? msg.email
-          : msg.from;
+    const displayName = getMessageDisplayName(msg);
     const messageBubble = createMessageBubble(
       msg.message,
       msg.time,
       isMine ? "right" : "left",
       displayName,
       msg.imageUrl,
+      msg.documentUrl,
+      msg.documentName,
+      msg.audioUrl,
     );
     messagesContainer.append(messageBubble);
   });
 }
 
+function addMessageToConversation(friendId: string, message: ChatMessage) {
+  if (!conversations[friendId]) {
+    conversations[friendId] = [];
+  }
+
+  conversations[friendId].push(message);
+}
+
+function appendMessageBubbleToUi(
+  message: ChatMessage,
+  direction: "left" | "right",
+) {
+  const displayName = getMessageDisplayName(message);
+  const messageBubble = createMessageBubble(
+    message.message,
+    message.time,
+    direction,
+    displayName,
+    message.imageUrl,
+    message.documentUrl,
+    message.documentName,
+    message.audioUrl,
+  );
+
+  messagesContainer.append(messageBubble);
+}
+
+function closeAttachmentMenu() {
+  attachmentsController?.closeAttachmentMenu();
+}
+
+function getMessageDisplayName(message: ChatMessage) {
+  if (typeof message.name === "string" && message.name.trim()) {
+    return message.name;
+  }
+
+  if (typeof message.email === "string" && message.email.trim()) {
+    return message.email;
+  }
+
+  return message.from;
+}
+
+function requireSelectedFriend(alertMessage: string) {
+  if (!selectedFriendId) {
+    alert(alertMessage);
+    return null;
+  }
+
+  return selectedFriendId;
+}
+
+function buildOutgoingMessage(
+  friendId: string,
+  payload: Omit<ChatMessage, "from" | "name" | "email" | "time" | "to"> & {
+    message: string;
+  },
+): ChatMessage {
+  const user = getLoggedInUser();
+
+  return {
+    from: user?.uid || "Anonim",
+    name: user?.displayName || user?.email || "Anonim",
+    email: user?.email || "",
+    time: new Date().toISOString(),
+    to: friendId,
+    ...payload,
+  };
+}
+
+async function dispatchOutgoingMessage(
+  friendId: string,
+  message: ChatMessage,
+  options: {
+    saveErrorLogPrefix: string;
+    saveErrorAlert: string;
+    onAfterDispatch?: () => void;
+    messageToPersist?: ChatMessage;
+  },
+) {
+  addMessageToConversation(friendId, message);
+  appendMessageBubbleToUi(message, "right");
+  options.onAfterDispatch?.();
+
+  wsSocket?.emit("send-chat-message", message);
+
+  try {
+    await saveMessage(options.messageToPersist || message);
+  } catch (error) {
+    console.error(options.saveErrorLogPrefix, error);
+    alert(options.saveErrorAlert);
+  }
+}
+
+function isMediaMessage(message: ChatMessage) {
+  return (
+    message.type === "image" ||
+    message.type === "document" ||
+    message.type === "audio"
+  );
+}
+
+function toTextOnlyPersistedMessage(message: ChatMessage): ChatMessage {
+  const textOnlyMessage: ChatMessage = { ...message };
+  delete textOnlyMessage.imageUrl;
+  delete textOnlyMessage.imageName;
+  delete textOnlyMessage.documentUrl;
+  delete textOnlyMessage.documentName;
+  delete textOnlyMessage.audioUrl;
+  delete textOnlyMessage.audioDurationSec;
+  delete textOnlyMessage.mimeType;
+  delete textOnlyMessage.fileSize;
+
+  return {
+    ...textOnlyMessage,
+    type: "text",
+  };
+}
+
+function getMessageForPersistence(message: ChatMessage): ChatMessage {
+  if (PERSIST_MEDIA_CONTENT_IN_DB || !isMediaMessage(message)) {
+    return message;
+  }
+
+  return toTextOnlyPersistedMessage(message);
+}
+
+async function sendRichMessage(
+  friendId: string,
+  payload: Omit<ChatMessage, "from" | "name" | "email" | "time" | "to"> & {
+    message: string;
+  },
+  saveErrorLogPrefix: string,
+  saveErrorAlert: string,
+  onAfterDispatch?: () => void,
+) {
+  const newMessage = buildOutgoingMessage(friendId, payload);
+
+  await dispatchOutgoingMessage(friendId, newMessage, {
+    saveErrorLogPrefix,
+    saveErrorAlert,
+    messageToPersist: getMessageForPersistence(newMessage),
+    onAfterDispatch,
+  });
+}
+
+function messageAlreadyExists(
+  existingMessage: ChatMessage,
+  newMessage: ChatMessage,
+) {
+  return (
+    existingMessage.time === newMessage.time &&
+    existingMessage.message === newMessage.message &&
+    existingMessage.from === newMessage.from
+  );
+}
+
+function addMessageToConversationIfMissing(
+  friendId: string,
+  message: ChatMessage,
+) {
+  const conversation = conversations[friendId] || [];
+  const exists = conversation.some((existingMessage) =>
+    messageAlreadyExists(existingMessage, message),
+  );
+
+  if (!exists) {
+    addMessageToConversation(friendId, message);
+  }
+}
+
 //--open-close fiend list mobile-only
 openCloseFriendList?.addEventListener("click", function () {
-  document.body.classList.toggle("friend-list-open");
-
-  // If opening the friend list, reset selection and show default state
-  if (document.body.classList.contains("friend-list-open")) {
-    selectedFriendId = null;
-
-    // Clear chat header to default
-    const user = getLoggedInUser();
-    chatUserName.textContent = user?.displayName || user?.email || "Chat";
-    chatUserEmail.textContent = user?.email || "";
-
-    // Clear friend selection
-    document.querySelectorAll(".friend").forEach((friend) => {
-      friend.classList.remove("selected");
-    });
-
-    // Show default message
-    renderMessages();
+  if (!isMobileViewport()) {
+    return;
   }
+
+  document.body.classList.toggle("friend-list-open");
+  syncFriendListToggleButtonState();
 });
 
 // --- MODALS ---
@@ -378,90 +573,80 @@ function handleTyping() {
   }, 1000);
 }
 
-function handleImageUpload(event: Event) {
-  const fileInput = event.target as HTMLInputElement;
-  const file = fileInput.files?.[0];
-  if (!file) return;
-
-  if (!selectedFriendId) {
-    alert("Please select a friend to chat with!");
-    fileInput.value = "";
+async function sendImageMessage(imageUrl: string, imageName: string) {
+  const friendId = requireSelectedFriend(
+    "Please select a friend to chat with!",
+  );
+  if (!friendId) {
     return;
   }
 
-  // Validate file type
-  if (!file.type.startsWith("image/")) {
-    alert("Please select an image file.");
-    fileInput.value = "";
-    return;
-  }
-
-  // Validate file size (max 5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    alert("Image size must be less than 5MB.");
-    fileInput.value = "";
-    return;
-  }
-
-  // Create a preview and send
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const imageUrl = e.target?.result as string;
-    sendImageMessage(imageUrl, file.name);
-  };
-  reader.onerror = () => {
-    alert("Image could not be read. Please try another file.");
-    fileInput.value = "";
-  };
-  reader.readAsDataURL(file);
+  await sendRichMessage(
+    friendId,
+    {
+      message: `Sent an image: ${imageName}`,
+      imageUrl,
+      imageName,
+      type: "image" as const,
+    },
+    "Failed to persist image message:",
+    "Message could not be saved. Please try again.",
+    () => {
+      imageInput.value = "";
+    },
+  );
 }
 
-async function sendImageMessage(imageUrl: string, imageName: string) {
-  if (!selectedFriendId) {
-    alert("Please select a friend to chat with!");
+async function sendDocumentMessage(documentUrl: string, file: File) {
+  const friendId = requireSelectedFriend(
+    "Please select a friend to chat with!",
+  );
+  if (!friendId) {
     return;
   }
 
-  const user = getLoggedInUser();
-  const newMessage: ChatMessage = {
-    from: user?.uid || "Anonim",
-    name: user?.displayName || user?.email || "Anonim",
-    email: user?.email || "",
-    time: new Date().toISOString(),
-    message: `Sent an image: ${imageName}`,
-    imageUrl,
-    imageName,
-    type: "image" as const,
-    to: selectedFriendId,
-  };
-
-  // Add message to current conversation
-  if (!conversations[selectedFriendId]) {
-    conversations[selectedFriendId] = [];
-  }
-  conversations[selectedFriendId].push(newMessage);
-
-  const messageBubble = createMessageBubble(
-    newMessage.message,
-    newMessage.time,
-    "right",
-    newMessage.name || newMessage.email || newMessage.from,
-    (newMessage as any).imageUrl,
+  await sendRichMessage(
+    friendId,
+    {
+      message: `Sent a file: ${file.name}`,
+      documentUrl,
+      documentName: file.name,
+      mimeType: file.type,
+      fileSize: file.size,
+      type: "document" as const,
+    },
+    "Failed to persist document message:",
+    "Document message could not be saved. Please try again.",
+    () => {
+      documentInput.value = "";
+    },
   );
+}
 
-  messagesContainer.append(messageBubble);
-  imageInput.value = "";
-
-  if (wsSocket) {
-    wsSocket.emit("send-chat-message", newMessage);
+async function sendAudioMessage(
+  audioUrl: string,
+  audioDurationSec: number,
+  mimeType: string,
+) {
+  const friendId = requireSelectedFriend(
+    "Please select a friend to chat with!",
+  );
+  if (!friendId) {
+    return;
   }
 
-  try {
-    await saveMessage(newMessage);
-  } catch (error) {
-    console.error("Failed to persist image message:", error);
-    alert("Message could not be saved. Please try again.");
-  }
+  await sendRichMessage(
+    friendId,
+    {
+      message: "Sent an audio message",
+      audioUrl,
+      audioDurationSec,
+      mimeType,
+      type: "audio",
+    },
+    "Failed to persist audio message:",
+    "Audio message could not be saved. Please try again.",
+  );
 }
 
 function onRecieveMessageFromWsServer(message: WssMessage) {
@@ -481,36 +666,12 @@ function onRecieveMessageFromWsServer(message: WssMessage) {
         break;
       }
 
-      // Add message to the correct conversation
-      if (!conversations[conversationFriendId]) {
-        conversations[conversationFriendId] = [];
-      }
-
-      // Check if message already exists to avoid duplicates
-      const messageExists = conversations[conversationFriendId].some(
-        (msg) =>
-          msg.time === newMessage.time &&
-          msg.message === newMessage.message &&
-          msg.from === newMessage.from,
-      );
-
-      if (!messageExists) {
-        conversations[conversationFriendId].push(newMessage);
-      }
+      addMessageToConversationIfMissing(conversationFriendId, newMessage);
 
       // If this message is for the currently selected friend, display it
       if (selectedFriendId === conversationFriendId) {
         const isMine = newMessage.from === currentUserId;
-        const displayName =
-          newMessage.name || newMessage.email || newMessage.from;
-        const messageBubble = createMessageBubble(
-          newMessage.message,
-          newMessage.time,
-          isMine ? "right" : "left",
-          displayName,
-          newMessage.imageUrl,
-        );
-        messagesContainer.append(messageBubble);
+        appendMessageBubbleToUi(newMessage, isMine ? "right" : "left");
       }
       break;
   }
@@ -524,56 +685,25 @@ function onWssError(error: Error) {
 async function onSendMessage() {
   const message = messageInput.value;
   if (message.trim() === "") return;
-  if (!selectedFriendId) {
-    alert("Please select a friend to chat with!");
+  const friendId = requireSelectedFriend(
+    "Please select a friend to chat with!",
+  );
+  if (!friendId) {
     return;
   }
 
-  const user = getLoggedInUser();
-  const newMessage: ChatMessage = {
-    from: user?.uid || "Anonim",
-    name: user?.displayName || user?.email || "Anonim",
-    email: user?.email || "",
-    time: new Date().toISOString(),
+  const newMessage = buildOutgoingMessage(friendId, {
     message,
-    to: selectedFriendId, // Add recipient info
-  };
+  });
 
-  // Add message to current conversation
-  if (!conversations[selectedFriendId]) {
-    conversations[selectedFriendId] = [];
-  }
-  conversations[selectedFriendId].push(newMessage);
-
-  const messageBubble = createMessageBubble(
-    newMessage.message,
-    newMessage.time,
-    "right",
-    newMessage.name || newMessage.email || newMessage.from,
-    (newMessage as any).imageUrl,
-  );
-
-  messagesContainer.append(messageBubble);
-  messageInput.value = "";
-
-  if (wsSocket) {
-    wsSocket.emit("send-chat-message", newMessage);
-  }
-
-  try {
-    await saveMessage(newMessage);
-  } catch (error) {
-    console.error("Failed to persist message:", error);
-    alert("Message could not be saved. Please try again.");
-  }
-}
-
-function debounce<T extends (...args: any[]) => void>(fn: T, delay = 300) {
-  let timeout: ReturnType<typeof setTimeout>;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => fn(...args), delay);
-  };
+  await dispatchOutgoingMessage(friendId, newMessage, {
+    saveErrorLogPrefix: "Failed to persist message:",
+    saveErrorAlert: "Message could not be saved. Please try again.",
+    onAfterDispatch: () => {
+      messageInput.value = "";
+      closeAttachmentMenu();
+    },
+  });
 }
 
 // --- Emoji ---

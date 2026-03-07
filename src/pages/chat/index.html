@@ -17,9 +17,15 @@
   </head>
   <body>
     <div class="page chat-layout m-xs flex gap-sm">
+      <button
+        class="open-close-friendList"
+        type="button"
+        aria-label="Show friends list"
+        aria-expanded="false"
+      ></button>
+
       <!-- Sidebar friends -->
       <aside class="sidebar flex flex-column">
-        <button class="open-close-friendList"></button>
         <div class="sidebar-title flex flex-center">Friends</div>
         <!-- Search friends -->
         <div class="friend-search">
@@ -79,20 +85,54 @@
               >
                 <ion-icon class="emoji-glyph" name="happy-outline"></ion-icon>
               </button>
+
+              <button
+                id="attachmentMenuButton"
+                class="attachment-menu-button"
+                type="button"
+                aria-label="Open attachment options"
+                aria-expanded="false"
+              >
+                <ion-icon name="add-outline"></ion-icon>
+              </button>
+
+              <div
+                id="attachmentMenu"
+                class="attachment-menu"
+                aria-hidden="true"
+              >
+                <button
+                  id="attachImageOption"
+                  type="button"
+                  class="attachment-menu-option attachment-image-option"
+                  aria-label="Attach image"
+                  title="Image"
+                >
+                  <ion-icon name="image-outline"></ion-icon>
+                </button>
+                <button
+                  id="attachDocumentOption"
+                  type="button"
+                  class="attachment-menu-option attachment-document-option"
+                  aria-label="Attach document"
+                  title="Document"
+                >
+                  <ion-icon name="document-attach-outline"></ion-icon>
+                </button>
+              </div>
+
               <input
                 type="file"
                 id="imageInput"
                 accept="image/*"
                 class="image-input-hidden"
               />
-              <button
-                id="imageUploadIcon"
-                class="image-upload-icon"
-                type="button"
-                aria-label="Upload image"
-              >
-                <ion-icon name="image-outline"></ion-icon>
-              </button>
+              <input
+                type="file"
+                id="documentInput"
+                accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.xls,.ppt,.pptx"
+                class="image-input-hidden"
+              />
               <div class="textarea-container">
                 <textarea
                   id="messageInput"
@@ -102,7 +142,19 @@
                 ></textarea>
               </div>
             </div>
-            <button id="sendMessageBtn" class="flex flex-center send-button">
+            <button
+              id="audioRecordBtn"
+              class="flex flex-center audio-record-btn"
+              type="button"
+              aria-label="Start audio recording"
+            >
+              <ion-icon name="mic-outline"></ion-icon>
+            </button>
+            <button
+              id="sendMessageBtn"
+              class="flex flex-center send-button"
+              type="button"
+            >
               <img
                 class="send-icon"
                 src="../../../public/send-icon.webp"
