@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   doc,
@@ -13,7 +13,8 @@ import {
   addDoc,
   arrayRemove,
   arrayUnion,
-} from 'firebase/firestore';
+  orderBy,
+} from "firebase/firestore";
 import {
   GetSingleDbDocFn,
   GetDbDocsFn,
@@ -21,10 +22,12 @@ import {
   AddDbDocFn,
   AddToArrayFieldFn,
   RemoveFromArrayFieldFn,
-} from './db.service.types.ts';
-import { getAuth } from 'firebase/auth';
+  FirestoreWhereCondition,
+  FirestoreDocument,
+} from "./db.service.types.ts";
+import { getAuth } from "firebase/auth";
 
-import config from '../../../config.ts';
+import config from "../../../config.ts";
 
 const firebaseConfig = config.firebase;
 export const app = initializeApp(firebaseConfig);
@@ -47,7 +50,7 @@ export const getSingleDbDoc: GetSingleDbDocFn = async (collectionName, id) => {
 
 export const getDbDocs: GetDbDocsFn = async (
   collectionName,
-  whereConditions = []
+  whereConditions = [],
 ) => {
   const conditions = whereConditions.map((cond) => where(...cond));
 
@@ -61,9 +64,32 @@ export const getDbDocs: GetDbDocsFn = async (
   }));
 };
 
+export const getDbDocsWithOrder = async (
+  collectionName: string,
+  whereConditions: FirestoreWhereCondition[] = [],
+  orderByField: string = "timestamp",
+  orderDirection: "asc" | "desc" = "asc",
+): Promise<FirestoreDocument[]> => {
+  const conditions = whereConditions.map((cond) => where(...cond));
+  const orderByClause = orderBy(orderByField, orderDirection);
+
+  const queryResults = query(
+    collection(db, collectionName),
+    ...conditions,
+    orderByClause,
+  );
+
+  const response = await getDocs(queryResults);
+
+  return response.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+};
+
 export const addDbDoc: AddDbDocFn = async (
   collectionName: string,
-  data: Record<string, any>
+  data: Record<string, any>,
 ): Promise<string> => {
   const docRef = await addDoc(collection(db, collectionName), {
     ...data,
@@ -75,7 +101,7 @@ export const addDbDoc: AddDbDocFn = async (
 export const updateDbDoc: UpdateDbDocFn = async (
   collection,
   id,
-  updatedFields
+  updatedFields,
 ) => {
   const docRef = doc(db, collection, id);
   const docSnap = await getDoc(docRef);
@@ -91,7 +117,7 @@ export const addToArrayField: AddToArrayFieldFn = async (
   collection,
   id,
   arrayField,
-  itemToAdd
+  itemToAdd,
 ) => {
   const docRef = doc(db, collection, id);
   await updateDoc(docRef, {
@@ -104,7 +130,7 @@ export const removeFromArrayField: RemoveFromArrayFieldFn = async (
   collection,
   id,
   arrayField,
-  itemToDelete
+  itemToDelete,
 ) => {
   const docRef = doc(db, collection, id);
   await updateDoc(docRef, {

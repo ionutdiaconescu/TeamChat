@@ -7,7 +7,8 @@ export const createMessageBubble = (
   message: string,
   time: string,
   direction: "left" | "right",
-  user: string
+  user: string,
+  imageUrl?: string,
 ): HTMLElement => {
   const userElem = createDomElement("div", "user", user);
   const textElem = createDomElement("div", "text", message);
@@ -19,15 +20,32 @@ export const createMessageBubble = (
           dateStyle: "short",
           timeStyle: "short",
         }).format(new Date(time))
-      : ""
+      : "",
   );
+
+  const elements = [userElem, textElem, timeElem];
+
+  // Add image if provided
+  if (imageUrl) {
+    const imageElem = createDomElement(
+      "img",
+      "message-image",
+    ) as HTMLImageElement;
+    imageElem.src = imageUrl;
+    imageElem.alt = "Shared image";
+    imageElem.onclick = () => {
+      // Open image in new tab when clicked
+      window.open(imageUrl, "_blank");
+    };
+    elements.splice(1, 0, imageElem); // Insert image between user and text
+  }
 
   const bubble = createDomElement(
     "div",
     `message ${direction}`,
     "",
     undefined,
-    [userElem, textElem, timeElem]
+    elements,
   );
 
   return bubble;
@@ -39,12 +57,12 @@ export const createFriendItem = (
   status: string,
   onRemove: () => void,
   friendId: string,
-  onSelect?: () => void
+  onSelect?: () => void,
 ): HTMLElement => {
   const avatar = createDomElement(
     "div",
     `avatar ${status === "online" ? "avatar-online" : "avatar-offline"}`,
-    ""
+    "",
   );
 
   const nameSpan = createDomElement("span", "name", name);
@@ -62,7 +80,7 @@ export const createFriendItem = (
   removeBtn.innerHTML = '<ion-icon name="close-outline"></ion-icon>';
 
   if (friendId === getLoggedInUser()?.uid) {
-    removeBtn.style.display = "none";
+    removeBtn.classList.add("hidden");
   } else {
     removeBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -75,7 +93,7 @@ export const createFriendItem = (
         },
         () => {
           document.body.removeChild(confirmModal);
-        }
+        },
       );
       document.body.appendChild(confirmModal);
     });
@@ -95,7 +113,6 @@ export const createFriendItem = (
         onSelect();
       }
     });
-    item.style.cursor = "pointer";
   }
 
   return item;
@@ -114,7 +131,7 @@ export const createAddFriendButton = (onClick: () => void): HTMLElement => {
 
 export const createAddFriendModal = (
   onConfirm: (email: string) => Promise<void>,
-  onCancel?: () => void
+  onCancel?: () => void,
 ): HTMLElement => {
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
@@ -134,7 +151,7 @@ export const createAddFriendModal = (
 
   // Nu mai există input pentru email direct
   const searchInput = overlay.querySelector<HTMLInputElement>(
-    "#search-users-input"
+    "#search-users-input",
   )!;
   const searchResults = overlay.querySelector<HTMLElement>("#search-results")!;
   const errBox = overlay.querySelector<HTMLElement>("#add-error")!;
@@ -172,7 +189,7 @@ export const createAddFriendModal = (
             </div>
             <button class="add-user-btn" data-user-id="${user.id}">Add</button>
           </div>
-        `
+        `,
         )
         .join("");
 
@@ -182,7 +199,7 @@ export const createAddFriendModal = (
           e.stopPropagation();
           const userId = (e.target as HTMLElement).dataset.userId;
           const userItem = searchResults.querySelector(
-            `[data-user-id="${userId}"]`
+            `[data-user-id="${userId}"]`,
           ) as HTMLElement;
           const userEmail = userItem?.dataset.userEmail;
 
@@ -208,7 +225,7 @@ export const createAddFriendModal = (
       const input = e.target as HTMLInputElement;
       console.log(input.value);
       handleUserSearch(input.value);
-    })
+    }),
   );
 
   // Event listener for clicks outside of results
@@ -229,7 +246,7 @@ export const createAddFriendModal = (
 export const createRemoveFriendModal = (
   friendName: string,
   onConfirm: () => void,
-  onCancel?: () => void
+  onCancel?: () => void,
 ): HTMLElement => {
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";

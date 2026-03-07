@@ -25,6 +25,7 @@ import {
   emojiSearch,
   closeEmojiOnOutsideClick,
 } from "./emoji";
+import { getMessagesBetweenUsers } from "../../services/messages-service/messages.service";
 import { User } from "./../../services/user-service/user.service.types";
 
 // --- DOM ELEMENTS ---
@@ -35,20 +36,22 @@ const friendList = document.querySelector(".friend-list")!;
 const openCloseFriendList = document.querySelector(".open-close-friendList");
 const sendBtn = document.getElementById("sendMessageBtn")!;
 const messageInput = document.getElementById(
-  "messageInput"
+  "messageInput",
 )! as HTMLInputElement;
 const searchInput = document.querySelector<HTMLInputElement>(
-  ".friend-search-input"
+  ".friend-search-input",
 );
 const emojiSearchInput = document.querySelector<HTMLInputElement>(
-  ".search-emoji input"
+  ".search-emoji input",
 );
 const emojiSelectorIcon = document.getElementById("emojiSelectorIcon");
 const emojiSelector = document.getElementById("emojiSelector");
 const emojiList = document.getElementById("emojiList");
 const textarea = document.querySelector(
-  ".message-input"
+  ".message-input",
 ) as HTMLTextAreaElement | null;
+const imageInput = document.getElementById("imageInput") as HTMLInputElement;
+const imageUploadIcon = document.getElementById("imageUploadIcon");
 if (textarea) {
   textarea.addEventListener("input", function (this: HTMLTextAreaElement) {
     this.style.height = "auto";
@@ -58,6 +61,10 @@ if (textarea) {
 let wsSocket: Socket | null = null;
 let conversations: { [friendId: string]: ChatMessage[] } = {};
 let selectedFriendId: string | null = null;
+let userStatuses: { [userId: string]: { isOnline: boolean; lastSeen?: Date } } =
+  {};
+let typingTimeouts: { [userId: string]: NodeJS.Timeout } = {};
+let isTyping: boolean = false;
 
 let friends: User[] = [];
 
@@ -82,15 +89,26 @@ async function initializePage() {
   sendBtn.addEventListener("click", onSendMessage);
   searchInput!.addEventListener(
     "input",
-    debounce(renderFilteredFriendsList, 300)
+    debounce(renderFilteredFriendsList, 300),
   );
+  // Add typing indicator
+  messageInput.addEventListener("input", handleTyping);
+
+  // Add image upload functionality
+  if (imageUploadIcon && imageInput) {
+    imageUploadIcon.addEventListener("click", () => {
+      imageInput.click();
+    });
+
+    imageInput.addEventListener("change", handleImageUpload);
+  }
 }
 
 // --- UI FUNCTIONS ---
-function selectFriend(
+async function selectFriend(
   friendId: string,
   friendName: string,
-  friendEmail: string
+  friendEmail: string,
 ) {
   selectedFriendId = friendId;
 
@@ -101,17 +119,15 @@ function selectFriend(
   // Update visual selection
   updateFriendSelection(friendId);
 
-  // Load and render messages for this friend
+  // Load messages for this conversation from database
+  await loadConversationMessages(friendId);
+
+  // Render messages
   renderMessages();
 
   // On mobile, close the friend list automatically
   if (window.innerWidth <= 768) {
     document.body.classList.remove("friend-list-open");
-  }
-
-  // Request messages for this friend from server if needed
-  if (wsSocket) {
-    wsSocket.emit("load-conversation", { friendId });
   }
 }
 
@@ -123,7 +139,7 @@ function updateFriendSelection(selectedId: string) {
 
   // Add selection to current friend
   const selectedFriend = document.querySelector(
-    `[data-friend-id="${selectedId}"]`
+    `[data-friend-id="${selectedId}"]`,
   );
   if (selectedFriend) {
     selectedFriend.classList.add("selected");
@@ -141,7 +157,7 @@ function renderFriendsList(filteredFriends?: User[]) {
       friend.status || "offline",
       () => removeFriend(friend),
       friend.id,
-      () => selectFriend(friend.id, friend.name, friend.email) // Add selection callback
+      () => selectFriend(friend.id, friend.name, friend.email), // Add selection callback
     );
 
     // Add data attribute for easy selection
@@ -165,6 +181,19 @@ async function removeFriend(friend: User) {
   await removeFriendFromUser(user.uid, friend.id);
   friends = friends.filter((f) => f.id !== friend.id);
   renderFilteredFriendsList();
+}
+
+async function loadConversationMessages(friendId: string) {
+  const user = getLoggedInUser();
+  if (!user) return;
+
+  try {
+    const messages = await getMessagesBetweenUsers(user.uid, friendId);
+    conversations[friendId] = messages;
+  } catch (error) {
+    console.error("Error loading conversation messages:", error);
+    conversations[friendId] = [];
+  }
 }
 
 function renderMessages() {
@@ -196,13 +225,14 @@ function renderMessages() {
       typeof msg.name === "string" && msg.name.trim()
         ? msg.name
         : typeof msg.email === "string" && msg.email.trim()
-        ? msg.email
-        : msg.from;
+          ? msg.email
+          : msg.from;
     const messageBubble = createMessageBubble(
       msg.message,
       msg.time,
       isMine ? "right" : "left",
-      displayName
+      displayName,
+      msg.imageUrl,
     );
     messagesContainer.append(messageBubble);
   });
@@ -247,17 +277,170 @@ function connectToWsServer() {
   wsSocket = connectToWebSocketsServer({
     onMessage: onRecieveMessageFromWsServer,
     onError: onWssError,
+    onOpen: onWsOpen,
+    onUserStatusUpdate: onUserStatusUpdate,
+    onUserTyping: onUserTyping,
   });
+}
+
+function onWsOpen() {
+  // Register the current user when WebSocket connects
+  const user = getLoggedInUser();
+  if (user && wsSocket) {
+    wsSocket.emit("register-user", user.uid);
+  }
+}
+
+function onUserStatusUpdate(statusData: {
+  userId: string;
+  isOnline: boolean;
+  lastSeen?: Date;
+}) {
+  userStatuses[statusData.userId] = {
+    isOnline: statusData.isOnline,
+    lastSeen: statusData.lastSeen,
+  };
+
+  // Update the friend list to reflect the new status
+  updateFriendOnlineStatus(statusData.userId, statusData.isOnline);
+}
+
+function updateFriendOnlineStatus(userId: string, isOnline: boolean) {
+  const friendElement = document.querySelector(`[data-friend-id="${userId}"]`);
+  if (friendElement) {
+    const avatar = friendElement.querySelector(".avatar");
+    if (avatar) {
+      avatar.className = `avatar ${isOnline ? "avatar-online" : "avatar-offline"}`;
+    }
+  }
+}
+
+function onUserTyping(typingData: { from: string; isTyping: boolean }) {
+  if (selectedFriendId === typingData.from) {
+    showTypingIndicator(typingData.isTyping);
+  }
+}
+
+function showTypingIndicator(isTyping: boolean) {
+  let typingIndicator = document.querySelector(
+    ".typing-indicator",
+  ) as HTMLElement;
+
+  if (isTyping) {
+    if (!typingIndicator) {
+      typingIndicator = document.createElement("div");
+      typingIndicator.className = "typing-indicator";
+      typingIndicator.innerHTML = `
+        <div class="typing-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <span class="typing-text">typing...</span>
+      `;
+      messagesContainer.appendChild(typingIndicator);
+    }
+    typingIndicator.classList.add("visible");
+  } else {
+    if (typingIndicator) {
+      typingIndicator.classList.remove("visible");
+    }
+  }
+}
+
+function handleTyping() {
+  if (!selectedFriendId || !wsSocket) return;
+
+  if (!isTyping) {
+    isTyping = true;
+    wsSocket.emit("typing-start", { to: selectedFriendId });
+  }
+
+  // Clear existing timeout
+  if (typingTimeouts[selectedFriendId]) {
+    clearTimeout(typingTimeouts[selectedFriendId]);
+  }
+
+  // Set new timeout to stop typing indicator
+  typingTimeouts[selectedFriendId] = setTimeout(() => {
+    isTyping = false;
+    wsSocket?.emit("typing-stop", { to: selectedFriendId });
+  }, 1000);
+}
+
+function handleImageUpload(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (!file || !selectedFriendId) return;
+
+  // Validate file type
+  if (!file.type.startsWith("image/")) {
+    alert("Please select an image file.");
+    return;
+  }
+
+  // Validate file size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    alert("Image size must be less than 5MB.");
+    return;
+  }
+
+  // Create a preview and send
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const imageUrl = e.target?.result as string;
+    sendImageMessage(imageUrl, file.name);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function sendImageMessage(imageUrl: string, imageName: string) {
+  if (!selectedFriendId) {
+    alert("Please select a friend to chat with!");
+    return;
+  }
+
+  const user = getLoggedInUser();
+  const newMessage = {
+    from: user?.uid || "Anonim",
+    name: user?.displayName || user?.email || "Anonim",
+    email: user?.email || "",
+    time: new Date().toISOString(),
+    message: `Sent an image: ${imageName}`,
+    imageUrl,
+    imageName,
+    type: "image" as const,
+    to: selectedFriendId,
+  };
+
+  // Add message to current conversation
+  if (!conversations[selectedFriendId]) {
+    conversations[selectedFriendId] = [];
+  }
+  conversations[selectedFriendId].push(newMessage);
+
+  const messageBubble = createMessageBubble(
+    newMessage.message,
+    newMessage.time,
+    "right",
+    newMessage.name,
+    (newMessage as any).imageUrl,
+  );
+
+  if (wsSocket) {
+    wsSocket.emit("send-chat-message", newMessage);
+  } else {
+    throw new Error("WebSocket connection is not established");
+  }
+
+  messagesContainer.append(messageBubble);
+  imageInput.value = "";
 }
 
 function onRecieveMessageFromWsServer(message: WssMessage) {
   switch (message.type) {
     case "load-chat-messages":
-      // Load messages for current selected friend
-      if (selectedFriendId) {
-        conversations[selectedFriendId] = message.data || [];
-        renderMessages();
-      }
+      // This is now handled by loadConversationMessages when selecting a friend
+      // We can ignore this or use it for initial loading if needed
       break;
     case "chat-update":
       const newMessage = message.data;
@@ -267,7 +450,16 @@ function onRecieveMessageFromWsServer(message: WssMessage) {
       if (!conversations[senderId]) {
         conversations[senderId] = [];
       }
-      conversations[senderId].push(newMessage);
+
+      // Check if message already exists to avoid duplicates
+      const messageExists = conversations[senderId].some(
+        (msg) =>
+          msg.time === newMessage.time && msg.message === newMessage.message,
+      );
+
+      if (!messageExists) {
+        conversations[senderId].push(newMessage);
+      }
 
       // If this message is for the currently selected friend, display it
       if (selectedFriendId === senderId) {
@@ -277,7 +469,8 @@ function onRecieveMessageFromWsServer(message: WssMessage) {
           newMessage.message,
           newMessage.time,
           "left",
-          displayName
+          displayName,
+          newMessage.imageUrl,
         );
         messagesContainer.append(messageBubble);
       }
@@ -318,7 +511,8 @@ function onSendMessage() {
     newMessage.message,
     newMessage.time,
     "right",
-    newMessage.name
+    newMessage.name,
+    (newMessage as any).imageUrl,
   );
 
   if (wsSocket) {
@@ -353,7 +547,7 @@ if (
       emojiSelector,
       allEmojis,
       emojiList,
-      messageInput
+      messageInput,
     );
     emojiSearch(emojiSearchInput, emojiList, allEmojis, messageInput);
     closeEmojiOnOutsideClick(emojiSelector, emojiSelectorIcon);

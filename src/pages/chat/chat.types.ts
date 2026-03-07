@@ -4,6 +4,9 @@ export type ChatMessage = {
   email?: string;
   time: string;
   message: string;
+  imageUrl?: string;
+  imageName?: string;
+  type?: "text" | "image";
 };
 
 export interface WssMessage {

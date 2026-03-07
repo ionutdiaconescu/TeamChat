@@ -13,17 +13,16 @@ export const configureElement = (
   elem: HTMLElement | null,
   classes: string,
   textContent: string,
-  otherAttributes?: Record<string, string>
+  otherAttributes?: Record<string, string>,
 ): void => {
   if (!elem) {
     console.warn("configureElement: element not found or is null");
     return;
   }
 
-  setElementClasses(elem, classes);
+  const finalClasses = textContent ? `${classes} visible` : classes;
+  setElementClasses(elem, finalClasses);
   setElementText(elem, textContent);
-
-  elem.style.display = textContent ? "block" : "none";
 
   if (typeof otherAttributes === "object") {
     Object.entries(otherAttributes).forEach(([key, value]) => {
@@ -36,7 +35,7 @@ export const createDomElement = (
   classes: string,
   textContent?: string,
   parentToAttachTo?: HTMLElement,
-  children?: HTMLElement[]
+  children?: HTMLElement[],
 ): HTMLElement => {
   const createdElement = document.createElement(tagName);
 
@@ -59,7 +58,7 @@ export const createDomElement = (
 
 export const createDomElementFromHtmlString = (
   htmlString: string,
-  elementToAppend?: HTMLElement
+  elementToAppend?: HTMLElement,
 ): ChildNode | null => {
   const temporaryDiv = document.createElement("div");
   temporaryDiv.innerHTML = htmlString.trim();

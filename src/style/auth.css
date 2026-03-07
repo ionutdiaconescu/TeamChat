@@ -27,6 +27,10 @@ h2 {
   backdrop-filter: blur(15px);
 }
 
+.message-box.visible {
+  display: block;
+}
+
 .message-box.error {
   display: block;
   color: #b80808;

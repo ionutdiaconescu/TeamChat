@@ -5,22 +5,23 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-} from 'firebase/auth';
-import { app } from '../db-service/db.service.ts';
-import { renderLoadingSpinner } from '../loading.service.ts';
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import { app } from "../db-service/db.service.ts";
+import { renderLoadingSpinner } from "../loading.service.ts";
 
-import { AuthCredentials, LoginCredentials } from './auth.service.types.ts';
+import { AuthCredentials, LoginCredentials } from "./auth.service.types.ts";
 
 const publicPages = [
-  '/pages/login',
-  '/pages/forgot-password',
-  '/pages/register',
-  '/src/pages/login',
-  '/src/pages/forgot-password',
-  '/src/pages/register',
+  "/pages/login",
+  "/pages/forgot-password",
+  "/pages/register",
+  "/src/pages/login",
+  "/src/pages/forgot-password",
+  "/src/pages/register",
 ];
 
-const protectedPages = ['/pages/chat', '/src/pages/chat'];
+const protectedPages = ["/pages/chat", "/src/pages/chat"];
 
 const auth = getAuth(app);
 
@@ -52,13 +53,13 @@ export const register = async ({
   const userCredential = await createUserWithEmailAndPassword(
     auth,
     email,
-    password
+    password,
   );
   const user = userCredential.user;
 
   await updateProfile(user, {
     displayName: name,
-    photoURL: '/user-icon.webp',
+    photoURL: "/user-icon.webp",
   });
 
   return { user, gender, name };
@@ -78,14 +79,14 @@ export const loginUser = async ({ email, password }: LoginCredentials) => {
     const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
-      password
+      password,
     );
     return userCredential.user;
   } catch (error: unknown) {
-    if (typeof error === 'object' && error !== null && 'message' in error) {
+    if (typeof error === "object" && error !== null && "message" in error) {
       console.error((error as { message: string }).message);
     }
-    throw new Error('Email or password is incorrect');
+    throw new Error("Email or password is incorrect");
   }
 };
 
@@ -93,16 +94,16 @@ export const onUserAuthStateChanged = (callback: (user: any) => void) =>
   onAuthStateChanged(auth, callback);
 
 export const handleServerAuthError = (error: any) => {
-  const defaultErrorMessage = 'An unknown error occurred. Please try again.';
+  const defaultErrorMessage = "An unknown error occurred. Please try again.";
 
   if (error?.code) {
     switch (error.code) {
-      case 'auth/email-already-in-use':
-        return 'This email is already registered. Please log in instead.';
-      case 'auth/invalid-email':
-        return 'The email address is not valid.';
-      case 'auth/weak-password':
-        return 'Password is too weak. Try a stronger one.';
+      case "auth/email-already-in-use":
+        return "This email is already registered. Please log in instead.";
+      case "auth/invalid-email":
+        return "The email address is not valid.";
+      case "auth/weak-password":
+        return "Password is too weak. Try a stronger one.";
       default:
         return defaultErrorMessage;
     }
@@ -118,9 +119,26 @@ export const getLoggedInUser = () => {
 export const signOutUser = async () => {
   try {
     await signOut(auth);
-    window.location.href = '/';
+    window.location.href = "/";
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error("Logout error:", error);
+  }
+};
+
+/**
+ * sendPasswordReset()
+ *
+ * Sends a password reset email to the user.
+ *
+ * @param {string} email The user's email address
+ */
+export const sendPasswordReset = async (email: string) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return "Password reset email sent successfully. Please check your inbox.";
+  } catch (error: any) {
+    console.error("Password reset error:", error);
+    return handleServerAuthError(error);
   }
 };
 
@@ -148,25 +166,25 @@ function handleUserState(user: any, resolve: (value: boolean) => void) {
 
   const isPublicPage = publicPages.some((page) => currentHref.includes(page));
   const isProtectedPage = protectedPages.some((page) =>
-    currentHref.includes(page)
+    currentHref.includes(page),
   );
 
   // Check if user is on homepage, index pages, or pages directory listing
   const isHomePage =
-    currentPath === '/' ||
-    currentPath === '/index.html' ||
-    currentPath === '/src/pages/' ||
-    currentPath === '/src/pages' ||
-    currentPath === '/pages/' ||
-    currentPath === '/pages' ||
-    currentHref.includes('/pages/index');
+    currentPath === "/" ||
+    currentPath === "/index.html" ||
+    currentPath === "/src/pages/" ||
+    currentPath === "/src/pages" ||
+    currentPath === "/pages/" ||
+    currentPath === "/pages" ||
+    currentHref.includes("/pages/index");
 
   // Redirect logic - only redirect if necessary
   if (user && (isHomePage || isPublicPage)) {
     // Logged in user on public pages -> redirect to chat
     showPageLoadingSpinner();
     setTimeout(() => {
-      window.location.href = '/src/pages/chat/';
+      window.location.href = "/src/pages/chat/";
     }, 300);
     return; // Don't resolve, we're redirecting
   }
@@ -175,7 +193,7 @@ function handleUserState(user: any, resolve: (value: boolean) => void) {
     // Not logged in user on homepage -> redirect to login
     showPageLoadingSpinner();
     setTimeout(() => {
-      window.location.href = '/src/pages/login/';
+      window.location.href = "/src/pages/login/";
     }, 300);
     return; // Don't resolve, we're redirecting
   }
@@ -184,7 +202,7 @@ function handleUserState(user: any, resolve: (value: boolean) => void) {
     // Not logged in user on protected page -> redirect to login
     showPageLoadingSpinner();
     setTimeout(() => {
-      window.location.href = '/src/pages/login/';
+      window.location.href = "/src/pages/login/";
     }, 300);
     return; // Don't resolve, we're redirecting
   }

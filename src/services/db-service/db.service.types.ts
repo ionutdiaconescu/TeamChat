@@ -1,4 +1,4 @@
-import { WhereFilterOp } from 'firebase/firestore';
+import { WhereFilterOp } from "firebase/firestore";
 
 /**firebase single doc return interface */
 export interface GetSingleDbDocFn {
@@ -16,7 +16,16 @@ export interface FirestoreDocument {
 export interface GetDbDocsFn {
   (
     collectionName: string,
-    whereConditions?: FirestoreWhereCondition[]
+    whereConditions?: FirestoreWhereCondition[],
+  ): Promise<FirestoreDocument[]>;
+}
+
+export interface GetDbDocsWithOrderFn {
+  (
+    collectionName: string,
+    whereConditions?: FirestoreWhereCondition[],
+    orderByField?: string,
+    orderDirection?: "asc" | "desc",
   ): Promise<FirestoreDocument[]>;
 }
 
@@ -24,7 +33,7 @@ export interface UpdateDbDocFn {
   (
     collection: string,
     id: string,
-    updatedFields: Record<string, any>
+    updatedFields: Record<string, any>,
   ): Promise<void>;
 }
 
@@ -36,12 +45,12 @@ export type AddToArrayFieldFn = (
   collection: string,
   id: string,
   arrayField: string,
-  itemToAdd: any
+  itemToAdd: any,
 ) => Promise<void>;
 
 export type RemoveFromArrayFieldFn = (
   collection: string,
   id: string,
   arrayField: string,
-  itemToDelete: any
+  itemToDelete: any,
 ) => Promise<void>;
