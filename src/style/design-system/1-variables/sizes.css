@@ -62,4 +62,71 @@
   --radius-xl: 3rem;
   --radius-2xl: 5rem;
   --radius-3xl: 10rem;
+
+  /* Chat-specific dimensions */
+  --width-chat-default-message: 28.75rem; /* 460px */
+  --width-chat-sidebar-mobile: 21.25rem; /* 340px */
+  --width-chat-title-mobile-reserve: 11.25rem; /* 180px */
+  --width-chat-audio: 15rem; /* 240px */
+
+  --height-chat-search-results: 12.5rem; /* 200px */
+  --height-chat-emoji-max: 21.25rem; /* 340px */
+  --height-chat-emoji-list-max: 16.25rem; /* 260px */
+  --height-chat-messages-bottom-pad: 3.75rem; /* 60px */
+
+  --height-chat-mobile-title-offset: 5.625rem; /* 90px */
+  --height-chat-mobile-emoji-max: 17.5rem; /* 280px */
+  --height-chat-mobile-emoji-list-max: 13.125rem; /* 210px */
+
+  --size-chat-control: 2.375rem; /* 38px */
+  --size-chat-control-mobile: 2.5rem; /* 40px */
+  --size-chat-control-icon: 1.25rem; /* 20px */
+  --size-chat-remove-btn: 1.875rem; /* 30px */
+  --size-chat-remove-icon: 1rem; /* 16px */
+  --size-chat-attachment-option: 2.75rem; /* 44px */
+  --size-chat-toggle: 2.625rem; /* 42px */
+  --size-chat-toggle-icon: 1.125rem; /* 18px */
+  --size-chat-toggle-icon-open: 1.25rem; /* 20px */
+  --size-chat-toggle-edge-offset: 0.375rem; /* 6px */
+  --size-chat-dot-gap: 0.125rem; /* 2px */
+  --size-chat-dot: 0.25rem; /* 4px */
+  --size-chat-inline-gap: 0.125rem; /* 2px */
+  --size-chat-image-radius: 0.5rem; /* 8px */
+  --size-chat-image-spacing: 0.5rem; /* 8px */
+  --size-chat-border-left: 0.25rem; /* 4px */
+  --size-chat-translate-sm: 0.625rem; /* 10px */
+
+  --size-border-thin: 1px;
+  --size-border-medium: 2px;
+  --radius-full: 999px;
+
+  /* Navbar dimensions */
+  --size-nav-header-padding-y: var(--size-xs);
+  --size-nav-header-padding-x: var(--size-sm);
+  --size-nav-logo-icon: 2.25rem; /* 36px */
+  --size-nav-link-padding-y: 0.625rem; /* 10px */
+  --size-nav-link-padding-x: 0.875rem; /* 14px */
+  --size-nav-link-min-width: 6.875rem; /* 110px */
+  --size-nav-mobile-trigger: 3rem; /* 48px */
+  --size-nav-mobile-dot: 0.4375rem; /* 7px */
+  --size-nav-mobile-menu-offset: 0.75rem; /* 12px */
+  --size-nav-mobile-menu-pointer: 0.875rem; /* 14px */
+  --size-nav-mobile-link-shift: 0.25rem; /* 4px */
+  --size-nav-mobile-link-padding-y: 0.75rem; /* 12px */
+  --size-nav-mobile-link-padding-x: 1rem; /* 16px */
+  --size-nav-mobile-link-min-height: 3rem; /* 48px */
+
+  --radius-nav-link: 1.25rem;
+  --radius-nav-mobile-menu: 1.25rem;
+
+  --width-nav-mobile-max: 23.75rem; /* 380px */
+
+  --blur-nav-header: 0.75rem; /* 12px */
+  --blur-nav-surface: 1rem; /* 16px */
+
+  --blur-chat-header: 0.875rem; /* 14px */
+  --blur-chat-panel: 0.75rem; /* 12px */
+  --blur-chat-composer: 0.625rem; /* 10px */
+  --blur-chat-search: 0.5rem; /* 8px */
+  --blur-chat-messages: 0.25rem; /* 4px */
 }

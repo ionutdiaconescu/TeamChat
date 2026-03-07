@@ -1,57 +1,108 @@
 @media (max-width: 768px) {
-  .chat-layout {
-    --mobile-header-offset: calc(
-      var(--size-4xl) + env(safe-area-inset-top) + var(--size-xs)
-    );
-    --mobile-sidebar-width: min(88vw, 340px);
-    --friend-toggle-size: 42px;
-    --friend-toggle-edge-offset: 6px;
+  .page.chat-layout {
+    --mobile-header-offset: calc(var(--size-2xl) + env(safe-area-inset-top));
+    --mobile-sidebar-width: min(88vw, var(--width-chat-sidebar-mobile));
+    --friend-toggle-size: var(--size-chat-toggle);
+    --friend-toggle-edge-offset: var(--size-chat-toggle-edge-offset);
     flex-direction: column;
-    height: calc(100dvh - var(--mobile-header-offset));
-    margin: var(--mobile-header-offset) 0 0 0;
+    min-height: 0;
+    width: 100%;
+    max-width: 100vw;
+    position: fixed;
+    top: var(--mobile-header-offset);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    margin: 0;
     padding: 0;
     gap: 0;
+    overflow: hidden;
   }
 
-  .open-close-friendList {
+  .chat-layout .open-close-friendList {
     display: flex;
     align-items: center;
     justify-content: center;
     position: fixed;
-    top: calc(var(--mobile-header-offset) + var(--size-xs));
+    top: calc(var(--mobile-header-offset) + var(--size-xxs));
     left: var(--size-xs);
     width: var(--friend-toggle-size);
     height: var(--friend-toggle-size);
-    border: 1px solid var(--border-color-light);
-    border-radius: 999px;
-    background: rgba(23, 28, 53, 0.92);
-    color: var(--color-text-white);
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+    border: var(--size-border-thin) solid var(--chat-mobile-toggle-border);
+    border-radius: var(--radius-full);
+    background: linear-gradient(
+      160deg,
+      var(--chat-mobile-toggle-start) 0%,
+      var(--chat-mobile-toggle-end) 100%
+    );
+    color: var(--chat-mobile-toggle-icon);
+    box-shadow: var(--shadow-chat-toggle);
     z-index: var(--z-index-1000);
+    cursor: pointer;
+    backdrop-filter: blur(var(--blur-chat-panel));
+    -webkit-backdrop-filter: blur(var(--blur-chat-panel));
     transition:
       left 0.25s ease,
+      transform 0.2s ease,
       background-color 0.2s ease,
+      border-color 0.2s ease,
       box-shadow 0.2s ease;
   }
 
-  .open-close-friendList::before {
+  .chat-layout .open-close-friendList::before {
     content: "\2630";
-    font-size: 1.15rem;
+    font-size: var(--size-chat-toggle-icon);
+    color: var(--chat-mobile-toggle-icon);
+    font-weight: 700;
     line-height: 1;
+    transition:
+      color 0.2s ease,
+      transform 0.2s ease,
+      font-size 0.2s ease;
   }
 
-  body.friend-list-open .open-close-friendList {
+  .chat-layout .open-close-friendList:hover {
+    background: linear-gradient(
+      160deg,
+      var(--chat-mobile-toggle-hover-start) 0%,
+      var(--chat-mobile-toggle-hover-end) 100%
+    );
+    box-shadow: var(--shadow-chat-toggle-hover);
+    transform: translateY(calc(var(--size-border-thin) * -1));
+  }
+
+  .chat-layout .open-close-friendList:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-chat-toggle-active);
+  }
+
+  .chat-layout .open-close-friendList:focus-visible {
+    outline: none;
+    box-shadow:
+      var(--shadow-chat-toggle-hover),
+      0 0 0 var(--size-xxs) var(--chat-mobile-toggle-focus-ring);
+  }
+
+  body.friend-list-open .chat-layout .open-close-friendList {
     left: calc(var(--mobile-sidebar-width) - var(--friend-toggle-edge-offset));
-    background: rgba(43, 49, 83, 0.96);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.32);
+    border-color: var(--chat-mobile-toggle-open-border);
+    background: linear-gradient(
+      160deg,
+      var(--chat-mobile-toggle-open-start) 0%,
+      var(--chat-mobile-toggle-open-end) 100%
+    );
+    box-shadow: var(--shadow-chat-toggle-open);
   }
 
-  body.friend-list-open .open-close-friendList::before {
+  body.friend-list-open .chat-layout .open-close-friendList::before {
     content: "\00d7";
-    font-size: 1.3rem;
+    color: var(--chat-mobile-toggle-open-icon);
+    font-size: var(--size-chat-toggle-icon-open);
+    transform: rotate(90deg);
   }
 
-  .sidebar {
+  .chat-layout .sidebar {
     position: fixed;
     top: var(--mobile-header-offset);
     left: 0;
@@ -65,7 +116,7 @@
     overflow-y: auto;
   }
 
-  body.friend-list-open .sidebar {
+  body.friend-list-open .chat-layout .sidebar {
     transform: translateX(0);
   }
 
@@ -76,7 +127,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--chat-mobile-overlay);
     z-index: var(--z-index-200);
   }
 
@@ -104,9 +155,12 @@
     right: var(--size-sm);
   }
 
-  .chat-window {
+  .chat-layout .chat-window {
     width: 100%;
+    max-width: 100vw;
     height: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
     margin: 0;
     border-radius: 0;
     opacity: 1;
@@ -118,30 +172,28 @@
       visibility 0.24s ease;
   }
 
-  body.friend-list-open .chat-window {
+  body.friend-list-open .chat-layout .chat-window {
     opacity: 0;
-    transform: translateX(10px) scale(0.98);
+    transform: translateX(var(--size-chat-translate-sm)) scale(0.98);
     pointer-events: none;
     visibility: hidden;
   }
 
   .chat-header {
     width: 100%;
-    padding-left: calc(44px + var(--size-md));
+    padding-left: calc(var(--size-chat-attachment-option) + var(--size-md));
   }
 
   .chat-window-title {
-    max-width: calc(100vw - 180px);
+    max-width: calc(100vw - var(--width-chat-title-mobile-reserve));
   }
 
   .chat-messages {
     width: 100%;
-    height: calc(100% - 90px);
+    height: calc(100% - var(--height-chat-mobile-title-offset));
     padding-bottom: var(--size-xxs);
   }
 
-  .message-send-bar,
-  .message-send-bar-inner,
   .input-with-emoji,
   .textarea-container {
     display: flex;
@@ -186,13 +238,13 @@
 
   .send-button {
     padding: var(--size-xs);
-    height: 40px;
-    width: 40px;
+    height: var(--size-chat-control-mobile);
+    width: var(--size-chat-control-mobile);
   }
 
   .audio-record-btn {
-    height: 40px;
-    width: 40px;
+    height: var(--size-chat-control-mobile);
+    width: var(--size-chat-control-mobile);
   }
 
   .send-icon {
@@ -211,12 +263,12 @@
     left: var(--size-xs);
     right: var(--size-xs);
     width: auto;
-    max-height: 280px;
+    max-height: var(--height-chat-mobile-emoji-max);
     bottom: calc(var(--size-2xl) + var(--size-sm));
   }
 
   .emoji-list {
-    max-height: 210px;
+    max-height: var(--height-chat-mobile-emoji-list-max);
   }
 
   .message {

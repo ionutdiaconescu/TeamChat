@@ -112,6 +112,8 @@ export const createFriendItem = (
   //remove friend button
   const removeBtn = createDomElement("button", "remove-friend-btn", "");
   removeBtn.title = "Remove friend";
+  removeBtn.setAttribute("aria-label", `Remove friend ${name}`);
+  removeBtn.setAttribute("type", "button");
   removeBtn.innerHTML = '<ion-icon name="close-outline"></ion-icon>';
 
   if (friendId === getLoggedInUser()?.uid) {
