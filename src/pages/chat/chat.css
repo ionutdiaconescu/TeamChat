@@ -94,6 +94,7 @@ body {
   background: var(--color-secondary);
   border-radius: var(--size-md);
   transition: width 0.3s ease;
+  position: relative;
 }
 
 .chat-window-title {
@@ -659,6 +660,8 @@ body {
   border-radius: var(--size-md);
   background-color: var(--color-secondary);
   height: var(--size-xl);
+  position: relative;
+  z-index: var(--z-index-20);
 }
 .message-send-bar-inner {
   display: flex;
@@ -677,7 +680,7 @@ body {
   min-width: 0;
   min-height: 1.5em;
   max-height: 8em;
-  padding: var(--size-sm) var(--size-2xl) var(--size-xs) var(--size-2xl);
+  padding: var(--size-sm) var(--size-sm) var(--size-xs) var(--size-sm);
   font-size: var(--size-sm);
   border-radius: var(--size-md);
   border: none;
@@ -702,20 +705,6 @@ body {
   cursor: pointer;
   translate: var(--size-xl);
 }
-.emoji-selector-icon {
-  position: absolute;
-  top: 50%;
-  left: var(--size-xs);
-  transform: translateY(-50%);
-  color: var(--color-primary);
-  width: var(--size-lg);
-  height: var(--size-lg);
-  cursor: pointer;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .search-emoji {
   display: flex;
   align-items: center;
@@ -733,7 +722,7 @@ body {
 .input-with-emoji {
   display: flex;
   align-items: center;
-  gap: var(--size-xxs);
+  gap: var(--size-xs);
   flex: 1 1 0%;
   position: relative;
   width: 100%;
@@ -744,17 +733,24 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--size-lg);
-  height: var(--size-lg);
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.2s;
-  color: var(--color-text-secondary);
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+  color: var(--color-primary);
+  background: var(--bg-color-white);
+  border: 1px solid var(--border-color-light);
+  flex: 0 0 auto;
+  padding: 0;
 }
 
 .emoji-selector-icon:hover,
 .image-upload-icon:hover {
-  background-color: var(--color-secondary);
+  background-color: #f2f4ff;
+  border-color: var(--color-primary);
 }
 
 .image-input-hidden {
@@ -762,24 +758,32 @@ body {
 }
 
 .emoji-selector {
-  width: var(--width-sm);
-  height: var(--height-sm);
+  position: absolute;
+  left: var(--size-sm);
+  bottom: calc(var(--size-xl) + var(--size-sm));
+  width: min(360px, calc(100% - var(--size-md)));
+  max-height: 340px;
   border-radius: var(--radius-md);
   background: var(--bg-color-white);
   display: none;
+  border: 1px solid var(--border-color-light);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  z-index: var(--z-index-100);
 }
 .emoji-selector.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 .emoji-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
-  gap: var(--size-xs);
-  padding: var(--size-xs);
+  gap: var(--size-xxs);
   list-style: none;
-  max-height: var(--height-xs);
+  max-height: 260px;
   overflow-y: auto;
-  padding: var(--size-xxs);
+  margin: 0;
+  padding: var(--size-xs);
 }
 .emoji-list li {
   font-size: var(--size-md);
@@ -787,11 +791,31 @@ body {
   cursor: pointer;
   transition: background 0.2s;
   border-radius: var(--size-xs);
+  line-height: 1;
+  padding: var(--size-xxs);
 }
 .emoji-list li:hover {
-  height: var(--size-lg);
-  cursor: pointer;
   background-color: var(--color-primary);
+}
+.emoji-glyph {
+  font-size: 1.25rem;
+  pointer-events: none;
+}
+
+.image-upload-icon ion-icon {
+  font-size: 1.2rem;
+}
+
+.search-emoji {
+  width: 100%;
+  padding: var(--size-xxs);
+  border-bottom: 1px solid var(--border-color-light);
+  background: #f8f9ff;
+}
+
+.search-emoji input {
+  margin: 0;
+  width: 100%;
 }
 .send-button {
   border: none;
@@ -1009,7 +1033,7 @@ body.friend-list-open .chat-window {
   .input-with-emoji {
     display: flex;
     align-items: center;
-    gap: var(--size-xxs);
+    gap: var(--size-xs);
     flex: 1;
   }
   .textarea-container {
@@ -1024,7 +1048,6 @@ body.friend-list-open .chat-window {
     max-height: 6em;
     font-size: var(--size-sm);
     padding: var(--size-sm);
-    padding-left: var(--size-2xl);
   }
   .send-button {
     padding: var(--size-xs);
@@ -1043,14 +1066,14 @@ body.friend-list-open .chat-window {
     width: var(--size-md);
   }
   .emoji-selector {
-    position: absolute;
-    max-width: var(--width-xs);
-    max-height: var(--width-xs);
-    margin-left: var(--size-xs);
+    left: var(--size-xs);
+    right: var(--size-xs);
+    width: auto;
+    max-height: 280px;
+    bottom: calc(var(--size-2xl) + var(--size-sm));
   }
   .emoji-list {
-    max-width: var(--width-xs);
-    max-height: var(--width-xxs);
+    max-height: 210px;
   }
 
   /* Mobile message optimizations */

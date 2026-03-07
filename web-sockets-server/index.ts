@@ -1,8 +1,4 @@
 import { Server, Socket } from "socket.io";
-import {
-  addDbDoc,
-  getDbDocs,
-} from "./../src/services/db-service/db.service.ts";
 
 const formatMessage = (data, type = "message") => ({
   type,
@@ -24,20 +20,12 @@ const userStatuses: Map<
   { socketId: string; lastSeen: Date; isOnline: boolean }
 > = new Map();
 
-async function fetchMessages() {
-  try {
-    return await getDbDocs("messages");
-  } catch (error) {
-    console.error("Error fetching messages:", error);
-    return [];
-  }
-}
-
-webSocketsServer.on("connection", async (socket) => {
+webSocketsServer.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 
   // When a user connects, they should send their user ID
   socket.on("register-user", (userId: string) => {
+    socket.data.userId = userId;
     connectedUsers.set(userId, socket);
     userStatuses.set(userId, {
       socketId: socket.id,
@@ -51,64 +39,56 @@ webSocketsServer.on("connection", async (socket) => {
     broadcastUserStatus(userId, true);
   });
 
-  // Fetch messages from Firestore (for backward compatibility)
-  const messages = await fetchMessages();
-  socket.emit("message", formatMessage(messages, "load-chat-messages"));
+  socket.on("send-chat-message", (data: { to?: string }) => {
+    if (!data?.to) {
+      return;
+    }
 
-  socket.on("send-chat-message", async (data) => {
-    try {
-      // Save new message to Firestore
-      await addDbDoc("messages", data);
-      console.log("New message received:", data);
+    console.log("New message received:", data);
 
-      // Send message to the recipient if they're connected
-      const recipientSocket = connectedUsers.get(data.to);
-      if (recipientSocket) {
-        recipientSocket.emit("message", formatMessage(data, "chat-update"));
-      }
-
-      // Also send back to sender for confirmation
-      socket.emit("message", formatMessage(data, "chat-update"));
-    } catch (error) {
-      console.error("Error adding message:", error);
+    // Send message to the recipient if they're connected.
+    const recipientSocket = connectedUsers.get(data.to);
+    if (recipientSocket) {
+      recipientSocket.emit("message", formatMessage(data, "chat-update"));
     }
   });
 
   socket.on("typing-start", (data: { to: string }) => {
+    const senderId = socket.data.userId as string | undefined;
     const recipientSocket = connectedUsers.get(data.to);
-    if (recipientSocket) {
-      recipientSocket.emit("user-typing", { from: data.to, isTyping: true });
+    if (recipientSocket && senderId) {
+      recipientSocket.emit("user-typing", { from: senderId, isTyping: true });
     }
   });
 
   socket.on("typing-stop", (data: { to: string }) => {
+    const senderId = socket.data.userId as string | undefined;
     const recipientSocket = connectedUsers.get(data.to);
-    if (recipientSocket) {
-      recipientSocket.emit("user-typing", { from: data.to, isTyping: false });
+    if (recipientSocket && senderId) {
+      recipientSocket.emit("user-typing", { from: senderId, isTyping: false });
     }
   });
 
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
-    // Remove user from connected users and update status
-    for (const [userId, userSocket] of connectedUsers.entries()) {
-      if (userSocket.id === socket.id) {
-        connectedUsers.delete(userId);
-
-        // Update status to offline
-        const status = userStatuses.get(userId);
-        if (status) {
-          status.isOnline = false;
-          status.lastSeen = new Date();
-        }
-
-        console.log(`User ${userId} disconnected`);
-
-        // Notify all connected users about the offline status change
-        broadcastUserStatus(userId, false);
-        break;
-      }
+    const userId = socket.data.userId as string | undefined;
+    if (!userId) {
+      return;
     }
+
+    connectedUsers.delete(userId);
+
+    // Update status to offline
+    const status = userStatuses.get(userId);
+    if (status) {
+      status.isOnline = false;
+      status.lastSeen = new Date();
+    }
+
+    console.log(`User ${userId} disconnected`);
+
+    // Notify all connected users about the offline status change
+    broadcastUserStatus(userId, false);
   });
 });
 

@@ -3,7 +3,7 @@ import { EmojiApiItem } from "./chat.types";
 export function renderEmojiList(
   data: EmojiApiItem[],
   emojiList: HTMLElement,
-  messageInput: HTMLInputElement
+  messageInput: HTMLInputElement,
 ) {
   emojiList.innerHTML = "";
   data.forEach((emoji) => {
@@ -20,11 +20,11 @@ export function renderEmojiList(
 
 export async function fetchEmojis(
   emojiList: HTMLElement,
-  messageInput: HTMLInputElement
+  messageInput: HTMLInputElement,
 ) {
   try {
     const res = await fetch(
-      "https://emoji-api.com/emojis?access_key=8f0d547a2b13d1968809f86674256575dcb7804e"
+      "https://emoji-api.com/emojis?access_key=8f0d547a2b13d1968809f86674256575dcb7804e",
     );
     if (!res.ok) throw new Error("Network response was not ok");
     const data: EmojiApiItem[] = await res.json();
@@ -41,12 +41,12 @@ export function initEmojiSelector(
   emojiSelector: HTMLElement | null,
   allEmojis: EmojiApiItem[],
   emojiList: HTMLElement,
-  messageInput: HTMLInputElement
+  messageInput: HTMLInputElement,
 ) {
   emojiSelectorIcon?.addEventListener("click", () => {
     emojiSelector?.classList.toggle("active");
     const emojiSearchInput = document.querySelector<HTMLInputElement>(
-      ".search-emoji input"
+      ".search-emoji input",
     );
     if (emojiSearchInput) emojiSearchInput.value = "";
     renderEmojiList(allEmojis, emojiList, messageInput);
@@ -56,27 +56,29 @@ export function emojiSearch(
   emojiSearchInput: HTMLInputElement,
   emojiList: HTMLElement,
   allEmojis: EmojiApiItem[],
-  messageInput: HTMLInputElement
+  messageInput: HTMLInputElement,
 ) {
   emojiSearchInput.addEventListener("input", () => {
     const term = emojiSearchInput.value.toLocaleLowerCase();
     const filtered = allEmojis.filter(
       (emoji) =>
         emoji.unicodeName.toLowerCase().includes(term) ||
-        emoji.slug.toLowerCase().includes(term)
+        emoji.slug.toLowerCase().includes(term),
     );
     renderEmojiList(filtered, emojiList, messageInput);
   });
 }
 export function closeEmojiOnOutsideClick(
   emojiSelector: HTMLElement,
-  emojiSelectorIcon: HTMLElement
+  emojiSelectorIcon: HTMLElement,
 ) {
   document.addEventListener("mousedown", (event) => {
+    const target = event.target as Node;
+
     if (
       emojiSelector.classList.contains("active") &&
-      !emojiSelector.contains(event.target as Node) &&
-      event.target !== emojiSelectorIcon
+      !emojiSelector.contains(target) &&
+      !emojiSelectorIcon.contains(target)
     ) {
       emojiSelector.classList.remove("active");
     }

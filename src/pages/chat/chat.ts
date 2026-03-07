@@ -25,7 +25,10 @@ import {
   emojiSearch,
   closeEmojiOnOutsideClick,
 } from "./emoji";
-import { getMessagesBetweenUsers } from "../../services/messages-service/messages.service";
+import {
+  getMessagesBetweenUsers,
+  saveMessage,
+} from "../../services/messages-service/messages.service";
 import { User } from "./../../services/user-service/user.service.types";
 
 // --- DOM ELEMENTS ---
@@ -97,6 +100,13 @@ async function initializePage() {
   // Add image upload functionality
   if (imageUploadIcon && imageInput) {
     imageUploadIcon.addEventListener("click", () => {
+      if (!selectedFriendId) {
+        alert("Please select a friend before sending an image.");
+        return;
+      }
+
+      // Reset value so selecting the same file again still triggers change.
+      imageInput.value = "";
       imageInput.click();
     });
 
@@ -369,18 +379,27 @@ function handleTyping() {
 }
 
 function handleImageUpload(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (!file || !selectedFriendId) return;
+  const fileInput = event.target as HTMLInputElement;
+  const file = fileInput.files?.[0];
+  if (!file) return;
+
+  if (!selectedFriendId) {
+    alert("Please select a friend to chat with!");
+    fileInput.value = "";
+    return;
+  }
 
   // Validate file type
   if (!file.type.startsWith("image/")) {
     alert("Please select an image file.");
+    fileInput.value = "";
     return;
   }
 
   // Validate file size (max 5MB)
   if (file.size > 5 * 1024 * 1024) {
     alert("Image size must be less than 5MB.");
+    fileInput.value = "";
     return;
   }
 
@@ -389,6 +408,10 @@ function handleImageUpload(event: Event) {
   reader.onload = (e) => {
     const imageUrl = e.target?.result as string;
     sendImageMessage(imageUrl, file.name);
+  };
+  reader.onerror = () => {
+    alert("Image could not be read. Please try another file.");
+    fileInput.value = "";
   };
   reader.readAsDataURL(file);
 }
@@ -400,7 +423,7 @@ async function sendImageMessage(imageUrl: string, imageName: string) {
   }
 
   const user = getLoggedInUser();
-  const newMessage = {
+  const newMessage: ChatMessage = {
     from: user?.uid || "Anonim",
     name: user?.displayName || user?.email || "Anonim",
     email: user?.email || "",
@@ -422,18 +445,23 @@ async function sendImageMessage(imageUrl: string, imageName: string) {
     newMessage.message,
     newMessage.time,
     "right",
-    newMessage.name,
+    newMessage.name || newMessage.email || newMessage.from,
     (newMessage as any).imageUrl,
   );
 
-  if (wsSocket) {
-    wsSocket.emit("send-chat-message", newMessage);
-  } else {
-    throw new Error("WebSocket connection is not established");
-  }
-
   messagesContainer.append(messageBubble);
   imageInput.value = "";
+
+  if (wsSocket) {
+    wsSocket.emit("send-chat-message", newMessage);
+  }
+
+  try {
+    await saveMessage(newMessage);
+  } catch (error) {
+    console.error("Failed to persist image message:", error);
+    alert("Message could not be saved. Please try again.");
+  }
 }
 
 function onRecieveMessageFromWsServer(message: WssMessage) {
@@ -443,32 +471,42 @@ function onRecieveMessageFromWsServer(message: WssMessage) {
       // We can ignore this or use it for initial loading if needed
       break;
     case "chat-update":
-      const newMessage = message.data;
-      const senderId = newMessage.from;
+      const newMessage = message.data as ChatMessage;
+      const currentUser = getLoggedInUser();
+      const currentUserId = currentUser?.uid;
+      const conversationFriendId =
+        newMessage.from === currentUserId ? newMessage.to : newMessage.from;
+
+      if (!conversationFriendId) {
+        break;
+      }
 
       // Add message to the correct conversation
-      if (!conversations[senderId]) {
-        conversations[senderId] = [];
+      if (!conversations[conversationFriendId]) {
+        conversations[conversationFriendId] = [];
       }
 
       // Check if message already exists to avoid duplicates
-      const messageExists = conversations[senderId].some(
+      const messageExists = conversations[conversationFriendId].some(
         (msg) =>
-          msg.time === newMessage.time && msg.message === newMessage.message,
+          msg.time === newMessage.time &&
+          msg.message === newMessage.message &&
+          msg.from === newMessage.from,
       );
 
       if (!messageExists) {
-        conversations[senderId].push(newMessage);
+        conversations[conversationFriendId].push(newMessage);
       }
 
       // If this message is for the currently selected friend, display it
-      if (selectedFriendId === senderId) {
+      if (selectedFriendId === conversationFriendId) {
+        const isMine = newMessage.from === currentUserId;
         const displayName =
           newMessage.name || newMessage.email || newMessage.from;
         const messageBubble = createMessageBubble(
           newMessage.message,
           newMessage.time,
-          "left",
+          isMine ? "right" : "left",
           displayName,
           newMessage.imageUrl,
         );
@@ -483,7 +521,7 @@ function onWssError(error: Error) {
 }
 
 // --- SEND MESSAGE ---
-function onSendMessage() {
+async function onSendMessage() {
   const message = messageInput.value;
   if (message.trim() === "") return;
   if (!selectedFriendId) {
@@ -492,7 +530,7 @@ function onSendMessage() {
   }
 
   const user = getLoggedInUser();
-  const newMessage = {
+  const newMessage: ChatMessage = {
     from: user?.uid || "Anonim",
     name: user?.displayName || user?.email || "Anonim",
     email: user?.email || "",
@@ -511,18 +549,23 @@ function onSendMessage() {
     newMessage.message,
     newMessage.time,
     "right",
-    newMessage.name,
+    newMessage.name || newMessage.email || newMessage.from,
     (newMessage as any).imageUrl,
   );
 
-  if (wsSocket) {
-    wsSocket.emit("send-chat-message", newMessage);
-  } else {
-    throw new Error("WebSocket connection is not established");
-  }
-
   messagesContainer.append(messageBubble);
   messageInput.value = "";
+
+  if (wsSocket) {
+    wsSocket.emit("send-chat-message", newMessage);
+  }
+
+  try {
+    await saveMessage(newMessage);
+  } catch (error) {
+    console.error("Failed to persist message:", error);
+    alert("Message could not be saved. Please try again.");
+  }
 }
 
 function debounce<T extends (...args: any[]) => void>(fn: T, delay = 300) {

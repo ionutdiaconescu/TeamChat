@@ -59,33 +59,40 @@
         <div class="flex flex-column flex-grow gap-xs chat-messages"></div>
 
         <!-- Emoji container -->
-        <li class="emoji-selector" id="emojiSelector">
+        <div class="emoji-selector" id="emojiSelector">
           <div class="input-container">
             <div class="search-emoji">
               <input type="text" name="" id="" placeholder="Search..." />
             </div>
           </div>
           <ul id="emojiList" class="emoji-list"></ul>
-        </li>
+        </div>
         <!-- Send message bar -->
         <div class="message-send-bar">
           <div class="message-send-bar-inner">
             <div class="input-with-emoji">
-              <span id="emojiSelectorIcon" class="emoji-selector-icon">
-                <ion-icon
-                  class="emoji-selector-icon"
-                  name="happy-outline"
-                ></ion-icon>
-              </span>
+              <button
+                id="emojiSelectorIcon"
+                class="emoji-selector-icon"
+                type="button"
+                aria-label="Open emoji picker"
+              >
+                <ion-icon class="emoji-glyph" name="happy-outline"></ion-icon>
+              </button>
               <input
                 type="file"
                 id="imageInput"
                 accept="image/*"
                 class="image-input-hidden"
               />
-              <span id="imageUploadIcon" class="image-upload-icon">
+              <button
+                id="imageUploadIcon"
+                class="image-upload-icon"
+                type="button"
+                aria-label="Upload image"
+              >
                 <ion-icon name="image-outline"></ion-icon>
-              </span>
+              </button>
               <div class="textarea-container">
                 <textarea
                   id="messageInput"
